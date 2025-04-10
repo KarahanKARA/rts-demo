@@ -9,6 +9,7 @@ namespace Core
         [Header("Grid Settings")]
         public int gridWidth = 20;
         public int gridHeight = 10;
+        [HideInInspector]
         public float cellSize = 1f;
 
         [Header("Tilemap Settings")]

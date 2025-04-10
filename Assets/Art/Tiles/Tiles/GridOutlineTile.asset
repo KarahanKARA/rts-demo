@@ -9,10 +9,10 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4b2886ec4c3b5244a9399e4bde072158, type: 3}
-  m_Name: DefaultGameSettings
+  m_Script: {fileID: 11500000, guid: 9d1514134bc4fbd41bb739b1b9a49231, type: 3}
+  m_Name: GridOutlineTile
   m_EditorClassIdentifier: 
-  gridWidth: 20
-  gridHeight: 10
-  cellSize: 1
-  gridTile: {fileID: 11400000, guid: e4af72e16ca3a7540a60713aa586487b, type: 2}
+  m_DefaultSprite: {fileID: 21300000, guid: a1f6bb3cb8ba886499b6c5ad41e51aa9, type: 3}
+  m_DefaultGameObject: {fileID: 0}
+  m_DefaultColliderType: 1
+  m_TilingRules: []

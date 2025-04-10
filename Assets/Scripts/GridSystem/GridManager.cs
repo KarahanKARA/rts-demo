@@ -11,6 +11,8 @@ namespace GridSystem
         [SerializeField] private GameSettings gameSettings;
         [SerializeField] private Tilemap tilemap;
         [SerializeField] private Grid layoutGrid; 
+        [SerializeField] private Tilemap overlayTilemap;
+        [SerializeField] private TileBase outlineTile;
         
         private Camera _gameCamera;
         private void Awake()
@@ -25,6 +27,7 @@ namespace GridSystem
         {
             GenerateGrid();
             AdjustCameraToGrid();
+            DrawGridOverlay();
         }
 
         private void GenerateGrid()
@@ -47,16 +50,27 @@ namespace GridSystem
             var height = gameSettings.gridHeight * gameSettings.cellSize;
 
             _gameCamera.transform.position = new Vector3(width / 2f, height / 2f, -10f);
+
             var screenRatio = (float)Screen.width / Screen.height;
             var targetRatio = width / height;
 
             if (screenRatio >= targetRatio)
-            {
-                _gameCamera.orthographicSize = height / 2f + 1;
-            }
+                _gameCamera.orthographicSize = height / 2f + 1f;
             else
+                _gameCamera.orthographicSize = (width / screenRatio) / 2f + 1f;
+        }
+        
+        private void DrawGridOverlay()
+        {
+            overlayTilemap.ClearAllTiles();
+    
+            for (int x = 0; x < gameSettings.gridWidth; x++)
             {
-                _gameCamera.orthographicSize = (width / screenRatio) / 2f + 1;
+                for (int y = 0; y < gameSettings.gridHeight; y++)
+                {
+                    Vector3Int tilePos = new Vector3Int(x, y, 0);
+                    overlayTilemap.SetTile(tilePos, outlineTile);
+                }
             }
         }
     }
