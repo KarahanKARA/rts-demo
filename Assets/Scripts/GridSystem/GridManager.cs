@@ -7,10 +7,10 @@ namespace GridSystem
     public class GridManager : MonoBehaviour
     {
         public static GridManager Instance { get; private set; }
+        public Grid layoutGrid; 
 
         [SerializeField] private GameSettings gameSettings;
         [SerializeField] private Tilemap tilemap;
-        [SerializeField] private Grid layoutGrid; 
         [SerializeField] private Tilemap overlayTilemap;
         [SerializeField] private TileBase outlineTile;
         
