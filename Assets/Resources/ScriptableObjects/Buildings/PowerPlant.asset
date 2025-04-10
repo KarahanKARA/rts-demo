@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: PowerPlant
   m_EditorClassIdentifier: 
   buildingName: Power Plant
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: 8b3a30b86c0bda44ba6d101f45b2664c, type: 3}
   prefab: {fileID: 9009766444928250370, guid: 687da12596602794ba40d3c4e0e0384d, type: 3}
   size: {x: 2, y: 3}
   health: 50
