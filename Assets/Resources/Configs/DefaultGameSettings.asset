@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 4b2886ec4c3b5244a9399e4bde072158, type: 3}
   m_Name: DefaultGameSettings
   m_EditorClassIdentifier: 
-  gridWidth: 20
+  gridWidth: 10
   gridHeight: 10
   cellSize: 1
   gridTile: {fileID: 11400000, guid: e4af72e16ca3a7540a60713aa586487b, type: 2}
