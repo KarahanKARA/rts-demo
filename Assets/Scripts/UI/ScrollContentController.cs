@@ -22,7 +22,8 @@ namespace UI
 
         [Header("Dependencies")]
         [SerializeField] private BuildingPlacer placer;
-
+        [SerializeField] private DragManager dragManager;
+        
         private List<BaseBuildingData> dataList;
         private List<BuildingItemUI> pool = new();
 
@@ -59,7 +60,7 @@ namespace UI
             {
                 var go = Instantiate(itemPrefab, content);
                 var ui = go.GetComponent<BuildingItemUI>();
-                ui.Init(placer);
+                ui.Init(placer, dragManager); 
                 pool.Add(ui);
             }
 

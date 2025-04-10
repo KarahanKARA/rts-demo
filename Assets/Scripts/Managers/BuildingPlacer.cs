@@ -59,6 +59,19 @@ namespace Managers
             return true;
         }
         
+        public void PlaceBuilding(BaseBuildingData data, Vector3 worldPosition)
+        {
+            Vector3 spawnPos = worldPosition + new Vector3(
+                data.size.x / 2f - 0.5f,
+                data.size.y / 2f - 0.5f,
+                0f
+            );
+
+            Instantiate(data.prefab, spawnPos, Quaternion.identity);
+        }
+
+
+        
         private Vector3 GetScaleFromSize(Vector2Int size)
         {
             return new Vector3(size.x, size.y, 1f);
