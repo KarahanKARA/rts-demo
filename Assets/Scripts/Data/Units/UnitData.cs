@@ -10,5 +10,7 @@ namespace Data.Units
         public GameObject prefab;
         public int health = 10;
         public int damage = 1;
+        public float attackSpeed = 1f;
+        public float attackRange = 1f;
     }
 }

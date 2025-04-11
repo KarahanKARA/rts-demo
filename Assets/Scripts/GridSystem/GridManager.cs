@@ -13,8 +13,8 @@ namespace GridSystem
         [SerializeField] private Tilemap overlayTilemap;
         [SerializeField] private GameSettings gameSettings;
 
-        private bool[,] occupied;
-        private Camera mainCam;
+        private bool[,] _occupied;
+        private Camera _mainCam;
 
         public Grid LayoutGrid => layoutGrid;
 
@@ -22,7 +22,7 @@ namespace GridSystem
         {
             if (Instance != null && Instance != this) Destroy(gameObject);
             Instance = this;
-            mainCam = Camera.main;
+            _mainCam = Camera.main;
         }
 
         private void Start()
@@ -36,7 +36,7 @@ namespace GridSystem
         {
             tilemap.ClearAllTiles();
             overlayTilemap.ClearAllTiles();
-            occupied = new bool[gameSettings.gridWidth, gameSettings.gridHeight];
+            _occupied = new bool[gameSettings.gridWidth, gameSettings.gridHeight];
 
             for (int x = 0; x < gameSettings.gridWidth; x++)
             {
@@ -51,8 +51,8 @@ namespace GridSystem
         {
             float w = gameSettings.gridWidth;
             float h = gameSettings.gridHeight;
-            mainCam.transform.position = new Vector3(w / 2f, h / 2f, -10f);
-            mainCam.orthographicSize = Mathf.Max(w, h) / 2f + 1;
+            _mainCam.transform.position = new Vector3(w / 2f, h / 2f, -10f);
+            _mainCam.orthographicSize = Mathf.Max(w, h) / 2f + 1;
         }
 
         public void DrawGridOverlay()
@@ -93,10 +93,10 @@ namespace GridSystem
                     int gx = bottomLeft.x + x;
                     int gy = bottomLeft.y + y;
 
-                    if (gx < 0 || gx >= occupied.GetLength(0) || gy < 0 || gy >= occupied.GetLength(1))
+                    if (gx < 0 || gx >= _occupied.GetLength(0) || gy < 0 || gy >= _occupied.GetLength(1))
                         return false;
 
-                    if (occupied[gx, gy])
+                    if (_occupied[gx, gy])
                         return false;
                 }
             }
@@ -114,10 +114,15 @@ namespace GridSystem
                     int gx = bottomLeft.x + x;
                     int gy = bottomLeft.y + y;
 
-                    if (gx >= 0 && gx < occupied.GetLength(0) && gy >= 0 && gy < occupied.GetLength(1))
-                        occupied[gx, gy] = true;
+                    if (gx >= 0 && gx < _occupied.GetLength(0) && gy >= 0 && gy < _occupied.GetLength(1))
+                        _occupied[gx, gy] = true;
                 }
             }
+        }
+        
+        public bool[,] GetOccupiedGrid()
+        {
+            return (bool[,])_occupied.Clone();
         }
     }
 }
