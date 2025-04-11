@@ -15,12 +15,14 @@ namespace Managers
         private SpriteRenderer ghostRenderer;
         private int originalSortingOrder;
         private Camera cam;
+        
+        [SerializeField] private MonoBehaviour factorySource;
         private IBuildingFactory buildingFactory;
 
         private void Awake()
         {
             cam = Camera.main;
-            buildingFactory = new BuildingFactory();
+            buildingFactory = factorySource as IBuildingFactory;
         }
 
         private void Update()
@@ -42,7 +44,7 @@ namespace Managers
             {
                 if (isValid)
                 {
-                    Instantiate(currentData.prefab, snapped, Quaternion.identity);
+                    buildingFactory.CreateBuilding(currentData, snapped);
                     GridManager.Instance.OccupyArea(cell, currentData.size);
                 }
 

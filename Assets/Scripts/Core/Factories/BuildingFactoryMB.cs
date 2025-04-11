@@ -3,11 +3,11 @@ using UnityEngine;
 
 namespace Core.Factories
 {
-    public class BuildingFactory : IBuildingFactory
+    public class BuildingFactoryMB : MonoBehaviour, IBuildingFactory
     {
         public GameObject CreateBuilding(BaseBuildingData data, Vector3 worldPosition)
         {
-            return Object.Instantiate(data.prefab, worldPosition, Quaternion.identity);
+            return Instantiate(data.prefab, worldPosition, Quaternion.identity);
         }
     }
 }
