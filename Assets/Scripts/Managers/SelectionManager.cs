@@ -10,6 +10,7 @@ namespace Managers
 
         public event Action<GameObject> OnSelectedChanged;
 
+        public GameObject SelectedObject => _selectedObject;
         private Camera _mainCamera;
         private GameObject _selectedObject;
         private SpriteRenderer _selectedRenderer;
