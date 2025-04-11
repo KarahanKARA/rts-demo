@@ -53,22 +53,21 @@ namespace Managers
 
         public void SelectObject(GameObject go)
         {
-            if (_selectedObject == go) return;
-
             if (_selectedRenderer != null)
                 _selectedRenderer.color = _originalColor;
 
             _selectedObject = go;
 
-            _selectedRenderer = _selectedObject.GetComponentInChildren<SpriteRenderer>();
-            if (_selectedRenderer != null)
+            if (_selectedObject.TryGetComponent(out SpriteRenderer renderer))
             {
-                _originalColor = _selectedRenderer.color;
+                _selectedRenderer = renderer;
+                _originalColor = renderer.color;
                 _selectedRenderer.color = selectionColor;
             }
 
             OnSelectedChanged?.Invoke(_selectedObject);
         }
+
 
         public void Deselect()
         {

@@ -43,26 +43,35 @@ namespace Managers
 
             if (Input.GetMouseButtonDown(0))
             {
-                if (isValid)
+                if (!isValid)
                 {
-                    GridManager.Instance.OccupyArea(cell, _currentData.size);
+                    Destroy(_ghost);
+                    _ghost = null;
+                    _currentData = null;
 
-                    var go = _buildingFactory.CreateBuilding(_currentData, snapped);
-
-                    if (!go.TryGetComponent(out UnitSpawnPointHolder spawnHolder))
-                        spawnHolder = go.AddComponent<UnitSpawnPointHolder>();
-
-                    var centerCell = GridManager.Instance.LayoutGrid.WorldToCell(snapped);
-                    var defaultSpawnCell = SpawnPointUtility.FindNearestFreeCell(centerCell, _currentData.size);
-                    spawnHolder.SetSpawnCell(defaultSpawnCell);
-
-                    go.GetComponent<BuildingHealth>().Initialize(_currentData.health);
-
-                    if (go.TryGetComponent(out UnitProducer producer))
-                        producer.SetFactory(UnitFactoryMB.Instance);
-
-                    SelectionManager.Instance.SelectObject(go);
+                    SelectionManager.Instance.Deselect(); 
+                    return;
                 }
+
+                var go = _buildingFactory.CreateBuilding(_currentData, snapped);
+
+                if (!go.TryGetComponent(out UnitSpawnPointHolder spawnHolder))
+                    spawnHolder = go.AddComponent<UnitSpawnPointHolder>();
+
+                Vector3Int centerCell = GridManager.Instance.LayoutGrid.WorldToCell(snapped);
+                GridManager.Instance.OccupyArea(cell, _currentData.size);
+
+                Vector3Int defaultSpawnCell = SpawnPointUtility.FindNearestFreeCell(centerCell, _currentData.size);
+                spawnHolder.SetSpawnCell(defaultSpawnCell);
+
+                go.GetComponent<BuildingHealth>().Initialize(_currentData.health);
+
+                if (go.TryGetComponent(out UnitProducer producer))
+                {
+                    producer.SetFactory(UnitFactoryMB.Instance); 
+                }
+
+                SelectionManager.Instance.SelectObject(go);
 
                 Destroy(_ghost);
                 _ghost = null;
@@ -74,6 +83,7 @@ namespace Managers
         {
             if (_ghost != null) Destroy(_ghost);
 
+            SelectionManager.Instance.Deselect();
             _currentData = data;
             _ghost = Instantiate(data.prefab);
             _ghostRenderer = _ghost.GetComponentInChildren<SpriteRenderer>();

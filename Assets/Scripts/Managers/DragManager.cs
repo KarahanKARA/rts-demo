@@ -43,7 +43,6 @@ namespace Managers
                     Instantiate(_draggingData.prefab, snapped, Quaternion.identity);
                     GridManager.Instance.OccupyArea(cell, _draggingData.size);
                 }
-
                 Destroy(_ghostObject);
                 _ghostObject = null;
                 _draggingData = null;
