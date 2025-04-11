@@ -8,10 +8,12 @@ namespace Managers
     public class DragManager : MonoBehaviour
     {
         [SerializeField] private BuildingPlacer placer;
+        [SerializeField] private Color dragColor = new(1f, 1f, 1f, 0.6f);
 
         private Camera cam;
         private BaseBuildingData draggingData;
         private GameObject ghostObject;
+        private SpriteRenderer ghostRenderer;
 
         private void Start()
         {
@@ -22,33 +24,34 @@ namespace Managers
         {
             draggingData = data;
             ghostObject = Instantiate(data.prefab);
-            ghostObject.GetComponent<SpriteRenderer>().color = new Color(1f, 1f, 1f, 0.6f);
+            ghostRenderer = ghostObject.GetComponentInChildren<SpriteRenderer>();
+            ghostRenderer.color = dragColor;
         }
 
         private void Update()
         {
-            if (draggingData == null || ghostObject == null)
-                return;
-
-            if (EventSystem.current.IsPointerOverGameObject())
-                return;
+            if (draggingData == null || ghostObject == null) return;
+            if (EventSystem.current.IsPointerOverGameObject()) return;
 
             Vector3 mouseWorld = cam.ScreenToWorldPoint(Input.mousePosition);
             mouseWorld.z = 0;
 
-            Vector3Int cellPos = GridManager.Instance.layoutGrid.WorldToCell(mouseWorld);
-            Vector3 placePos = GridManager.Instance.layoutGrid.CellToWorld(cellPos);
+            Vector3Int cell = GridManager.Instance.LayoutGrid.WorldToCell(mouseWorld);
+            Vector3 snapped = GridManager.Instance.GetSnappedPosition(cell, draggingData.size);
 
-            Vector3 offset = new Vector3(
-                draggingData.size.x / 2f - 0.5f,
-                draggingData.size.y / 2f - 0.5f,
-                0f
-            );
-            ghostObject.transform.position = placePos + offset;
+            ghostObject.transform.position = snapped;
+
+            bool isValid = GridManager.Instance.IsAreaFree(cell, draggingData.size);
+            ghostRenderer.color = isValid ? dragColor : new Color(1f, 0.3f, 0.3f, dragColor.a);
 
             if (Input.GetMouseButtonUp(0))
             {
-                placer.PlaceBuilding(draggingData, placePos);
+                if (isValid)
+                {
+                    Instantiate(draggingData.prefab, snapped, Quaternion.identity);
+                    GridManager.Instance.OccupyArea(cell, draggingData.size);
+                }
+
                 Destroy(ghostObject);
                 ghostObject = null;
                 draggingData = null;

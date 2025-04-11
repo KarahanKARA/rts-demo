@@ -16,3 +16,4 @@ MonoBehaviour:
   gridHeight: 10
   cellSize: 1
   gridTile: {fileID: 11400000, guid: e4af72e16ca3a7540a60713aa586487b, type: 2}
+  outlineTile: {fileID: 11400000, guid: 58e99487e614c684f9755d934a7783cf, type: 2}

@@ -1,10 +1,10 @@
-using UnityEngine;
 using Data.Buildings;
+using UnityEngine;
 
 namespace Core.Factories
 {
     public interface IBuildingFactory
     {
-        public GameObject CreateBuilding(BaseBuildingData data, Vector3 worldPosition);
+        GameObject CreateBuilding(BaseBuildingData data, Vector3 worldPosition);
     }
 }

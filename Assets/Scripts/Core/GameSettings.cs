@@ -14,5 +14,6 @@ namespace Core
 
         [Header("Tilemap Settings")]
         public TileBase gridTile;
+        public TileBase outlineTile;
     }
 }

@@ -1,5 +1,5 @@
-using UnityEngine;
 using Data.Buildings;
+using UnityEngine;
 
 namespace Core.Factories
 {
@@ -7,9 +7,7 @@ namespace Core.Factories
     {
         public GameObject CreateBuilding(BaseBuildingData data, Vector3 worldPosition)
         {
-            var building = GameObject.Instantiate(data.prefab, worldPosition, Quaternion.identity);
-            building.name = data.buildingName;
-            return building;
+            return Object.Instantiate(data.prefab, worldPosition, Quaternion.identity);
         }
     }
 }

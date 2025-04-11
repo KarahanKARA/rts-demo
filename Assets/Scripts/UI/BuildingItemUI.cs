@@ -3,42 +3,18 @@ using Managers;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.EventSystems;
 
 namespace UI
 {
-    using UnityEngine.EventSystems;
-
-    public class BuildingItemUI : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler
+    public class BuildingItemUI : MonoBehaviour
     {
-        public RectTransform rectTransform;
         [SerializeField] private Image iconImage;
         [SerializeField] private TextMeshProUGUI buildNameTmp;
 
+        public RectTransform rectTransform;
         private BaseBuildingData data;
         private BuildingPlacer placer;
         private DragManager dragManager;
-
-        public void OnBeginDrag(PointerEventData eventData)
-        {
-            if (dragManager != null)
-                dragManager.StartDrag(data);
-        }
-
-        public void OnDrag(PointerEventData eventData)
-        {
-            // Gerekirse ileride ghost objeyi mouse’a yapıştırmak için kullanılır
-        }
-
-        public void OnEndDrag(PointerEventData eventData)
-        {
-            // Bırakma kontrolü DragManager tarafından zaten yapılıyor
-        }
-
-
-        public void OnPointerDown(PointerEventData eventData)
-        {
-        }
 
         public void Init(BuildingPlacer placerRef, DragManager dragRef)
         {
@@ -55,8 +31,8 @@ namespace UI
 
         public void OnClick()
         {
-            if (dragManager != null)
-                dragManager.StartDrag(data);
+            if (data != null)
+                placer.StartPlacing(data);
         }
     }
 }
