@@ -13,19 +13,18 @@ namespace GridSystem
         [SerializeField] private Tilemap overlayTilemap;
         [SerializeField] private GameSettings gameSettings;
 
-        private bool[,] _occupied;
-        private Camera _mainCam;
+        private bool[,] occupied;
+        private Camera mainCam;
 
         public Grid LayoutGrid => layoutGrid;
         public int GridWidth => gameSettings.gridWidth;
         public int GridHeight => gameSettings.gridHeight;
 
-
         private void Awake()
         {
             if (Instance != null && Instance != this) Destroy(gameObject);
             Instance = this;
-            _mainCam = Camera.main;
+            mainCam = Camera.main;
         }
 
         private void Start()
@@ -39,7 +38,7 @@ namespace GridSystem
         {
             tilemap.ClearAllTiles();
             overlayTilemap.ClearAllTiles();
-            _occupied = new bool[gameSettings.gridWidth, gameSettings.gridHeight];
+            occupied = new bool[gameSettings.gridWidth, gameSettings.gridHeight];
 
             for (int x = 0; x < gameSettings.gridWidth; x++)
             {
@@ -54,8 +53,8 @@ namespace GridSystem
         {
             float w = gameSettings.gridWidth;
             float h = gameSettings.gridHeight;
-            _mainCam.transform.position = new Vector3(w / 2f, h / 2f, -10f);
-            _mainCam.orthographicSize = Mathf.Max(w, h) / 2f + 1;
+            mainCam.transform.position = new Vector3(w / 2f, h / 2f, -10f);
+            mainCam.orthographicSize = Mathf.Max(w, h) / 2f + 1;
         }
 
         public void DrawGridOverlay()
@@ -73,8 +72,8 @@ namespace GridSystem
 
         public Vector3Int GetBottomLeftCell(Vector3Int centerCell, Vector2Int size)
         {
-            int offsetX = size.x % 2 == 0 ? (size.x / 2 - 1) : (size.x / 2);
-            int offsetY = size.y % 2 == 0 ? (size.y / 2 - 1) : (size.y / 2);
+            int offsetX = Mathf.FloorToInt(size.x / 2f);
+            int offsetY = Mathf.FloorToInt(size.y / 2f);
             return new Vector3Int(centerCell.x - offsetX, centerCell.y - offsetY, 0);
         }
 
@@ -96,13 +95,14 @@ namespace GridSystem
                     int gx = bottomLeft.x + x;
                     int gy = bottomLeft.y + y;
 
-                    if (gx < 0 || gx >= _occupied.GetLength(0) || gy < 0 || gy >= _occupied.GetLength(1))
+                    if (gx < 0 || gx >= occupied.GetLength(0) || gy < 0 || gy >= occupied.GetLength(1))
                         return false;
 
-                    if (_occupied[gx, gy])
+                    if (occupied[gx, gy])
                         return false;
                 }
             }
+
             return true;
         }
 
@@ -117,15 +117,12 @@ namespace GridSystem
                     int gx = bottomLeft.x + x;
                     int gy = bottomLeft.y + y;
 
-                    if (gx >= 0 && gx < _occupied.GetLength(0) && gy >= 0 && gy < _occupied.GetLength(1))
-                        _occupied[gx, gy] = true;
+                    if (gx >= 0 && gx < occupied.GetLength(0) && gy >= 0 && gy < occupied.GetLength(1))
+                        occupied[gx, gy] = true;
                 }
             }
         }
-        
-        public bool[,] GetOccupiedGrid()
-        {
-            return (bool[,])_occupied.Clone();
-        }
+
+        public bool[,] GetOccupiedGrid() => occupied;
     }
 }

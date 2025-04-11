@@ -2,6 +2,7 @@ using Core.Factories;
 using Data.Buildings;
 using GridSystem;
 using UnityEngine;
+using Utilities;
 
 namespace Managers
 {
@@ -15,7 +16,7 @@ namespace Managers
         private SpriteRenderer _ghostRenderer;
         private int _originalSortingOrder;
         private Camera _cam;
-        
+
         [SerializeField] private MonoBehaviour factorySource;
         private IBuildingFactory _buildingFactory;
 
@@ -42,27 +43,37 @@ namespace Managers
 
             if (Input.GetMouseButtonDown(0))
             {
-                if (isValid)
+                if (!isValid)
                 {
-                    var go = _buildingFactory.CreateBuilding(_currentData, snapped);
-                    if (!go.TryGetComponent(out UnitSpawnPointHolder spawnHolder))
-                        spawnHolder = go.AddComponent<UnitSpawnPointHolder>();
-                    
-                    Vector3Int defaultSpawnCell = GridManager.Instance.LayoutGrid.WorldToCell(snapped) + Vector3Int.up;
-                    spawnHolder.SetSpawnCell(defaultSpawnCell);
-                    go.GetComponent<BuildingHealth>().Initialize(_currentData.health);
-                    GridManager.Instance.OccupyArea(cell, _currentData.size);
-                    SelectionManager.Instance.SelectObject(go);
-                    
-                   
+                    SelectionManager.Instance.Deselect();
+                    Destroy(_ghost);
+                    _ghost = null;
+                    _currentData = null;
+                    return;
                 }
+
+                var go = _buildingFactory.CreateBuilding(_currentData, snapped);
+
+                Vector3Int gridCell = GridManager.Instance.LayoutGrid.WorldToCell(snapped);
+                GridManager.Instance.OccupyArea(gridCell, _currentData.size);
+
+                if (!go.TryGetComponent(out UnitSpawnPointHolder spawnHolder))
+                    spawnHolder = go.AddComponent<UnitSpawnPointHolder>();
+
+                Vector3Int centerCell = GridManager.Instance.LayoutGrid.WorldToCell(snapped);
+                Vector3Int defaultSpawnCell = SpawnPointUtility.FindNearestFreeCell(centerCell, _currentData.size);
+                spawnHolder.SetSpawnCell(defaultSpawnCell);
+
+                go.GetComponent<BuildingHealth>().Initialize(_currentData.health);
+
+                SelectionManager.Instance.SelectObject(go);
 
                 Destroy(_ghost);
                 _ghost = null;
                 _currentData = null;
             }
-
         }
+
 
         public void StartPlacing(BaseBuildingData data)
         {

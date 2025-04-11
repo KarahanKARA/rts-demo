@@ -1,6 +1,7 @@
 using UnityEngine;
 using GridSystem;
 using Data.Buildings;
+using Utilities;
 
 namespace Managers
 {
@@ -65,9 +66,11 @@ namespace Managers
 
             if (!selected.TryGetComponent(out UnitSpawnPointHolder spawnHolder))
             {
-                _currentSpawnHolder = null;
-                flagSprite?.SetActive(false);
-                return;
+                spawnHolder = selected.AddComponent<UnitSpawnPointHolder>();
+
+                Vector3Int centerCell = GridManager.Instance.LayoutGrid.WorldToCell(selected.transform.position);
+                Vector3Int fallbackSpawnCell = SpawnPointUtility.FindNearestFreeCell(centerCell, holder.Data.size);
+                spawnHolder.SetSpawnCell(fallbackSpawnCell);
             }
 
             _currentSpawnHolder = spawnHolder;
@@ -76,6 +79,7 @@ namespace Managers
             UpdateFlagPosition();
             flagSprite?.SetActive(true);
         }
+
 
 
         private void UpdateFlagPosition()
