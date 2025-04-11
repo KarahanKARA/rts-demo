@@ -31,7 +31,7 @@ namespace Core.Factories
             var allUnits = Resources.LoadAll<UnitData>("ScriptableObjects/Units");
             foreach (var unit in allUnits)
             {
-                ObjectPoolManager.Instance.Preload(unit.prefab, initialCount);
+                ObjectPoolManager.Instance.Preload(unit.prefab, initialCount,unitParent);
             }
         }
 
@@ -41,7 +41,7 @@ namespace Core.Factories
 
             if (!ObjectPoolManager.Instance.HasAvailable(key))
             {
-                ObjectPoolManager.Instance.Preload(data.prefab, extraBatchCount);
+                ObjectPoolManager.Instance.Preload(data.prefab, extraBatchCount,unitParent);
             }
 
             GameObject go = ObjectPoolManager.Instance.Get(key, data.prefab, unitParent);

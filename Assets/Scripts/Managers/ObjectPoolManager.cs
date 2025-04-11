@@ -17,7 +17,7 @@ namespace Managers
                 Instance = this;
         }
 
-        public void Preload(GameObject prefab, int amount)
+        public void Preload(GameObject prefab, int amount, Transform parent)
         {
             string key = prefab.name;
             if (!pool.ContainsKey(key))
@@ -25,7 +25,7 @@ namespace Managers
 
             for (int i = 0; i < amount; i++)
             {
-                GameObject obj = Instantiate(prefab);
+                GameObject obj = Instantiate(prefab, parent);
                 obj.SetActive(false);
                 pool[key].Enqueue(obj);
             }
