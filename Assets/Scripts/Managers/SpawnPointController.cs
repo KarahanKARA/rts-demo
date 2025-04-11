@@ -1,121 +1,133 @@
 using UnityEngine;
 using GridSystem;
 using Data.Buildings;
-using Utilities;
+using System.Collections;
+using Managers;
 
 namespace Managers
 {
     public class SpawnPointController : MonoBehaviour
     {
         [SerializeField] private GameObject flagSprite;
+        [SerializeField] private GameObject crossPersistentPrefab;
+        [SerializeField] private GameObject crossPopupPrefab;
+        [SerializeField] private Transform crossSignParentTransform;
+
+        private const string CrossPopupKey = "CrossPopup";
 
         private BaseBuildingData _currentBuilding;
-        private Vector3Int _spawnCell;
         private UnitSpawnPointHolder _currentSpawnHolder;
-        
-        private void Start()
+        private Vector3Int _spawnCell;
+        private GameObject _persistentCrossInstance;
+
+        private IEnumerator Start()
         {
-            if (flagSprite != null)
-                flagSprite.SetActive(false);
+            flagSprite?.SetActive(false);
 
             if (SelectionManager.Instance != null)
                 SelectionManager.Instance.OnSelectedChanged += OnSelectionChanged;
+            
+            yield return new WaitUntil(() => ObjectPoolManager.Instance != null);
+            PreloadPopupPool();
         }
 
         private void Update()
         {
-            if (_currentBuilding == null || !_currentBuilding.CanProduceUnits)
-                return;
+            if (_currentBuilding == null || !_currentBuilding.CanProduceUnits) return;
 
             if (Input.GetMouseButtonDown(1))
             {
-                var world = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+                Vector3 world = Camera.main.ScreenToWorldPoint(Input.mousePosition);
                 world.z = 0;
+
                 Vector3Int cell = GridManager.Instance.LayoutGrid.WorldToCell(world);
 
-                if (!IsCellValid(cell)) return;
+                if (!IsCellValid(cell))
+                {
+                    ShowPopupCross(world);
+                    return;
+                }
 
                 _spawnCell = cell;
-
                 _currentSpawnHolder?.SetSpawnCell(_spawnCell);
-
-                UpdateFlagPosition();
-
+                UpdateFlagAndCross();
             }
+
+            UpdateFlagAndCross();
+        }
+
+        private void PreloadPopupPool()
+        {
+            ObjectPoolManager.Instance.Preload(crossPopupPrefab, 5, crossSignParentTransform);
+        }
+
+        private void ShowPopupCross(Vector3 worldPos)
+        {
+            GameObject cross = ObjectPoolManager.Instance.Get(CrossPopupKey, crossPopupPrefab, crossSignParentTransform);
+            cross.transform.position = worldPos;
+            cross.SetActive(true);
+
+            StartCoroutine(HideAfterDelay(cross));
+        }
+
+        private IEnumerator HideAfterDelay(GameObject go)
+        {
+            yield return new WaitForSeconds(1f);
+            go.SetActive(false);
+            ObjectPoolManager.Instance.Return(CrossPopupKey, go);
         }
 
         private void OnSelectionChanged(GameObject selected)
         {
-            if (selected == null || !selected.TryGetComponent(out BuildingDataHolder holder))
-            {
-                _currentBuilding = null;
-                _currentSpawnHolder = null;
-                flagSprite?.SetActive(false);
-                return;
-            }
+            flagSprite?.SetActive(false);
+            _persistentCrossInstance?.SetActive(false);
 
-            if (!holder.Data.CanProduceUnits)
+            if (selected == null || !selected.TryGetComponent(out BuildingDataHolder holder) || !holder.Data.CanProduceUnits)
             {
                 _currentBuilding = null;
                 _currentSpawnHolder = null;
-                flagSprite?.SetActive(false);
                 return;
             }
 
             _currentBuilding = holder.Data;
 
             if (!selected.TryGetComponent(out UnitSpawnPointHolder spawnHolder))
-            {
-                spawnHolder = selected.AddComponent<UnitSpawnPointHolder>();
-
-                Vector3Int centerCell = GridManager.Instance.LayoutGrid.WorldToCell(selected.transform.position);
-                Vector3Int fallbackSpawnCell = SpawnPointUtility.FindNearestFreeCell(centerCell, holder.Data.size);
-                spawnHolder.SetSpawnCell(fallbackSpawnCell);
-            }
+                return;
 
             _currentSpawnHolder = spawnHolder;
             _spawnCell = _currentSpawnHolder.SpawnCell;
-
-            UpdateFlagPosition();
-            flagSprite?.SetActive(true);
+            UpdateFlagAndCross();
         }
 
-
-
-        private void UpdateFlagPosition()
+        private void UpdateFlagAndCross()
         {
-            if (flagSprite == null) return;
-            Vector3 world = GridManager.Instance.LayoutGrid.CellToWorld(_spawnCell) + new Vector3(0.5f, 0.5f, 0);
-            flagSprite.transform.position = world;
-        }
+            if (_currentSpawnHolder == null) return;
 
-        public Vector3 GetSpawnWorldPosition()
-        {
-            return GridManager.Instance.LayoutGrid.CellToWorld(_spawnCell) + new Vector3(0.5f, 0.5f, 0);
-        }
+            bool valid = IsCellValid(_currentSpawnHolder.SpawnCell);
+            _currentSpawnHolder.SetProductionAllowed(valid);
 
-        private Vector3Int FindNearestFreeCell(Vector3Int center, Vector2Int size)
-        {
-            int range = 1;
-            while (range < 10)
+            Vector3 world = GridManager.Instance.LayoutGrid.CellToWorld(_currentSpawnHolder.SpawnCell) + new Vector3(0.5f, 0.5f, 0f);
+
+            if (valid)
             {
-                for (int dx = -range; dx <= range; dx++)
-                {
-                    for (int dy = -range; dy <= range; dy++)
-                    {
-                        if (Mathf.Abs(dx) != range && Mathf.Abs(dy) != range)
-                            continue;
+                flagSprite?.SetActive(true);
+                flagSprite.transform.position = world;
 
-                        Vector3Int testCell = new Vector3Int(center.x + dx, center.y + dy, 0);
-                        if (!IsCellValid(testCell)) continue;
-
-                        return testCell;
-                    }
-                }
-                range++;
+                if (_persistentCrossInstance != null)
+                    _persistentCrossInstance.SetActive(false);
             }
+            else
+            {
+                flagSprite?.SetActive(false);
 
-            return Vector3Int.one * -1;
+                if (_persistentCrossInstance == null)
+                {
+                    _persistentCrossInstance = Instantiate(crossPersistentPrefab, crossSignParentTransform);
+                }
+
+                _persistentCrossInstance.transform.position = world;
+                _persistentCrossInstance.SetActive(true);
+            }
         }
 
         private bool IsCellValid(Vector3Int cell)

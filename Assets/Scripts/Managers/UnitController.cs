@@ -32,7 +32,6 @@ namespace Managers
 
             if (cellPath == null || cellPath.Count == 0)
             {
-                Debug.Log($"{name} için yol bulunamadı.");
                 return;
             }
 
