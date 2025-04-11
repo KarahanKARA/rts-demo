@@ -9,7 +9,6 @@ namespace Data.Buildings
         public GameObject prefab;
         public Vector2Int size = Vector2Int.one;
         public int health = 100;
-
         public virtual bool CanProduceUnits => false;
         public virtual bool IsObstacle => false;
     }

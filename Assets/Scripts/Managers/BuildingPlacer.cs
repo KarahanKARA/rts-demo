@@ -10,78 +10,69 @@ namespace Managers
         [SerializeField] private Color validColor = new(0f, 1f, 0f, 0.4f);
         [SerializeField] private Color invalidColor = new(1f, 0f, 0f, 0.4f);
 
-        private BaseBuildingData currentData;
-        private GameObject ghost;
-        private SpriteRenderer ghostRenderer;
-        private int originalSortingOrder;
-        private Camera cam;
+        private BaseBuildingData _currentData;
+        private GameObject _ghost;
+        private SpriteRenderer _ghostRenderer;
+        private int _originalSortingOrder;
+        private Camera _cam;
         
         [SerializeField] private MonoBehaviour factorySource;
-        private IBuildingFactory buildingFactory;
+        private IBuildingFactory _buildingFactory;
 
         private void Awake()
         {
-            cam = Camera.main;
-            buildingFactory = factorySource as IBuildingFactory;
+            _cam = Camera.main;
+            _buildingFactory = factorySource as IBuildingFactory;
         }
 
         private void Update()
         {
-            if (currentData == null || ghost == null) return;
+            if (_currentData == null || _ghost == null) return;
 
-            Vector3 mouseWorld = cam.ScreenToWorldPoint(Input.mousePosition);
+            var mouseWorld = _cam.ScreenToWorldPoint(Input.mousePosition);
             mouseWorld.z = 0;
 
-            Vector3Int cell = GridManager.Instance.LayoutGrid.WorldToCell(mouseWorld);
-            Vector3 snapped = GridManager.Instance.GetSnappedPosition(cell, currentData.size);
+            var cell = GridManager.Instance.LayoutGrid.WorldToCell(mouseWorld);
+            var snapped = GridManager.Instance.GetSnappedPosition(cell, _currentData.size);
 
-            ghost.transform.position = snapped;
+            _ghost.transform.position = snapped;
 
-            bool isValid = GridManager.Instance.IsAreaFree(cell, currentData.size);
-            ghostRenderer.color = isValid ? validColor : invalidColor;
+            var isValid = GridManager.Instance.IsAreaFree(cell, _currentData.size);
+            _ghostRenderer.color = isValid ? validColor : invalidColor;
 
             if (Input.GetMouseButtonDown(0))
             {
                 if (isValid)
                 {
-                    buildingFactory.CreateBuilding(currentData, snapped);
-                    GridManager.Instance.OccupyArea(cell, currentData.size);
+                    var go = _buildingFactory.CreateBuilding(_currentData, snapped);
+                    go.GetComponent<BuildingHealth>().Initialize(_currentData.health);
+                    GridManager.Instance.OccupyArea(cell, _currentData.size);
+                    SelectionManager.Instance.SelectObject(go);
                 }
 
-                Destroy(ghost);
-                ghost = null;
-                currentData = null;
+                Destroy(_ghost);
+                _ghost = null;
+                _currentData = null;
             }
+
         }
 
         public void StartPlacing(BaseBuildingData data)
         {
-            if (ghost != null) Destroy(ghost);
+            if (_ghost != null) Destroy(_ghost);
 
-            currentData = data;
-            ghost = Instantiate(data.prefab);
-            ghostRenderer = ghost.GetComponentInChildren<SpriteRenderer>();
-            originalSortingOrder = ghostRenderer.sortingOrder;
-            ghostRenderer.sortingOrder = originalSortingOrder + 1;
-            ghostRenderer.color = invalidColor;
+            _currentData = data;
+            _ghost = Instantiate(data.prefab);
+            _ghostRenderer = _ghost.GetComponentInChildren<SpriteRenderer>();
+            _originalSortingOrder = _ghostRenderer.sortingOrder;
+            _ghostRenderer.sortingOrder = _originalSortingOrder + 1;
+            _ghostRenderer.color = invalidColor;
 
-            Vector3 mouseWorld = cam.ScreenToWorldPoint(Input.mousePosition);
+            var mouseWorld = _cam.ScreenToWorldPoint(Input.mousePosition);
             mouseWorld.z = 0;
 
-            Vector3Int cell = GridManager.Instance.LayoutGrid.WorldToCell(mouseWorld);
-            ghost.transform.position = GridManager.Instance.GetSnappedPosition(cell, data.size);
-        }
-
-        public void PlaceBuilding(BaseBuildingData data, Vector3 worldPosition)
-        {
-            Vector3Int cell = GridManager.Instance.LayoutGrid.WorldToCell(worldPosition);
-
-            if (!GridManager.Instance.IsAreaFree(cell, data.size))
-                return;
-
-            Vector3 snapped = GridManager.Instance.GetSnappedPosition(cell, data.size);
-            Instantiate(data.prefab, snapped, Quaternion.identity);
-            GridManager.Instance.OccupyArea(cell, data.size);
+            var cell = GridManager.Instance.LayoutGrid.WorldToCell(mouseWorld);
+            _ghost.transform.position = GridManager.Instance.GetSnappedPosition(cell, data.size);
         }
     }
 }

@@ -11,6 +11,8 @@ GameObject:
   - component: {fileID: 912189862949758463}
   - component: {fileID: 372355349760119031}
   - component: {fileID: 699220425809008465}
+  - component: {fileID: 167338262939865456}
+  - component: {fileID: 3764590503350635904}
   m_Layer: 0
   m_Name: Obstacle_WallPrefab
   m_TagString: Untagged
@@ -111,3 +113,34 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 0.44075847, y: 0.4888344}
   m_EdgeRadius: 0
+--- !u!114 &167338262939865456
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1359921214664993662}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0bf5bc3c60454329b1fa7d5fb0ca31c3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  OnHealthChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  OnDestroyed:
+    m_PersistentCalls:
+      m_Calls: []
+--- !u!114 &3764590503350635904
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1359921214664993662}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 10522ff889e04513a49754e92237b026, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Data: {fileID: 11400000, guid: a86fcbf2c9595fc4c82ddcac65fa7b3b, type: 2}

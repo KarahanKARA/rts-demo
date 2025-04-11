@@ -6,19 +6,19 @@ namespace Data.Buildings
 {
     public class BuildingCatalog : MonoBehaviour
     {
-        private List<BaseBuildingData> allBuildings;
+        private List<BaseBuildingData> _allBuildings;
 
         public List<BaseBuildingData> GetAllBuildings()
         {
-            if (allBuildings == null)
+            if (_allBuildings == null)
                 LoadAllBuildings();
 
-            return allBuildings;
+            return _allBuildings;
         }
 
         private void LoadAllBuildings()
         {
-            allBuildings = Resources.LoadAll<BaseBuildingData>($"ScriptableObjects/Buildings").ToList();
+            _allBuildings = Resources.LoadAll<BaseBuildingData>($"ScriptableObjects/Buildings").ToList();
         }
     }
 }

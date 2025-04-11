@@ -11,6 +11,8 @@ GameObject:
   - component: {fileID: 5843104239153186250}
   - component: {fileID: 5843104239153186249}
   - component: {fileID: 6302186463384316072}
+  - component: {fileID: -1260111509020004450}
+  - component: {fileID: -1041959272626838299}
   m_Layer: 0
   m_Name: Obstacle_TreePrefab
   m_TagString: Untagged
@@ -111,3 +113,34 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 0.36, y: 0.4}
   m_EdgeRadius: 0
+--- !u!114 &-1260111509020004450
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5843104239153186248}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0bf5bc3c60454329b1fa7d5fb0ca31c3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  OnHealthChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  OnDestroyed:
+    m_PersistentCalls:
+      m_Calls: []
+--- !u!114 &-1041959272626838299
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5843104239153186248}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 10522ff889e04513a49754e92237b026, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  Data: {fileID: 11400000, guid: b530da7a186a6274db8a17ff2ba99dc7, type: 2}
