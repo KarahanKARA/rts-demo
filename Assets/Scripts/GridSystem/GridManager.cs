@@ -17,6 +17,9 @@ namespace GridSystem
         private Camera _mainCam;
 
         public Grid LayoutGrid => layoutGrid;
+        public int GridWidth => gameSettings.gridWidth;
+        public int GridHeight => gameSettings.gridHeight;
+
 
         private void Awake()
         {

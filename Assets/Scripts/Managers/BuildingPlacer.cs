@@ -45,9 +45,16 @@ namespace Managers
                 if (isValid)
                 {
                     var go = _buildingFactory.CreateBuilding(_currentData, snapped);
+                    if (!go.TryGetComponent(out UnitSpawnPointHolder spawnHolder))
+                        spawnHolder = go.AddComponent<UnitSpawnPointHolder>();
+                    
+                    Vector3Int defaultSpawnCell = GridManager.Instance.LayoutGrid.WorldToCell(snapped) + Vector3Int.up;
+                    spawnHolder.SetSpawnCell(defaultSpawnCell);
                     go.GetComponent<BuildingHealth>().Initialize(_currentData.health);
                     GridManager.Instance.OccupyArea(cell, _currentData.size);
                     SelectionManager.Instance.SelectObject(go);
+                    
+                   
                 }
 
                 Destroy(_ghost);

@@ -11,14 +11,17 @@ namespace Managers
         public event Action<GameObject> OnSelectedChanged;
 
         private Camera _mainCamera;
-        
         private GameObject _selectedObject;
-        
+
         private void Awake()
         {
-            if (Instance != null) Destroy(gameObject);
+            if (Instance != null && Instance != this)
+            {
+                Destroy(gameObject);
+                return;
+            }
+
             Instance = this;
-            
             _mainCamera = Camera.main;
         }
 
@@ -43,7 +46,7 @@ namespace Managers
                 }
             }
         }
-        
+
         public void SelectObject(GameObject go)
         {
             _selectedObject = go;
