@@ -23,6 +23,15 @@ namespace Managers
 
         public void Produce(UnitData unitData)
         {
+            if (_unitFactory == null)
+            {
+                Debug.Log($"UnitFactory is null");
+            }
+
+            if (_spawnPointHolder == null)
+            {
+                Debug.Log($"SpawnPointHolder is null");
+            }
             if (_unitFactory == null || _spawnPointHolder == null)
                 return;
 

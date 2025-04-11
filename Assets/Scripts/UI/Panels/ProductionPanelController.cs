@@ -52,7 +52,9 @@ namespace UI.Panels
         private void OnProduceClicked(UnitData data)
         {
             if (!SelectionManager.Instance.SelectedObject.TryGetComponent(out UnitProducer producer))
+            {
                 return;
+            }
 
             producer.Produce(data);
         }

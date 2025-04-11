@@ -11,14 +11,14 @@ namespace Managers
         [SerializeField] private Color validColor = new(0f, 1f, 0f, 0.4f);
         [SerializeField] private Color invalidColor = new(1f, 0f, 0f, 0.4f);
 
+        [SerializeField] private MonoBehaviour factorySource;
+
+        private IBuildingFactory _buildingFactory;
         private BaseBuildingData _currentData;
         private GameObject _ghost;
         private SpriteRenderer _ghostRenderer;
         private int _originalSortingOrder;
         private Camera _cam;
-
-        [SerializeField] private MonoBehaviour factorySource;
-        private IBuildingFactory _buildingFactory;
 
         private void Awake()
         {
@@ -30,67 +30,81 @@ namespace Managers
         {
             if (_currentData == null || _ghost == null) return;
 
-            var mouseWorld = _cam.ScreenToWorldPoint(Input.mousePosition);
+            Vector3 mouseWorld = _cam.ScreenToWorldPoint(Input.mousePosition);
             mouseWorld.z = 0;
 
-            var cell = GridManager.Instance.LayoutGrid.WorldToCell(mouseWorld);
-            var snapped = GridManager.Instance.GetSnappedPosition(cell, _currentData.size);
+            Vector3Int cell = GridManager.Instance.LayoutGrid.WorldToCell(mouseWorld);
+            Vector3 snapped = GridManager.Instance.GetSnappedPosition(cell, _currentData.size);
 
             _ghost.transform.position = snapped;
 
-            var isValid = GridManager.Instance.IsAreaFree(cell, _currentData.size);
+            bool isValid = GridManager.Instance.IsAreaFree(cell, _currentData.size);
             _ghostRenderer.color = isValid ? validColor : invalidColor;
 
             if (Input.GetMouseButtonDown(0))
             {
                 if (!isValid)
                 {
-                    SelectionManager.Instance.Deselect();
-                    Destroy(_ghost);
-                    _ghost = null;
-                    _currentData = null;
+                    CleanupPlacement();
                     return;
                 }
 
-                var go = _buildingFactory.CreateBuilding(_currentData, snapped);
+                GameObject go = _buildingFactory.CreateBuilding(_currentData, snapped);
 
-                Vector3Int gridCell = GridManager.Instance.LayoutGrid.WorldToCell(snapped);
-                GridManager.Instance.OccupyArea(gridCell, _currentData.size);
+                InitializeBuilding(go, cell, snapped);
 
-                if (!go.TryGetComponent(out UnitSpawnPointHolder spawnHolder))
-                    spawnHolder = go.AddComponent<UnitSpawnPointHolder>();
-
-                Vector3Int centerCell = GridManager.Instance.LayoutGrid.WorldToCell(snapped);
-                Vector3Int defaultSpawnCell = SpawnPointUtility.FindNearestFreeCell(centerCell, _currentData.size);
-                spawnHolder.SetSpawnCell(defaultSpawnCell);
-
-                go.GetComponent<BuildingHealth>().Initialize(_currentData.health);
-
+                GridManager.Instance.OccupyArea(cell, _currentData.size);
                 SelectionManager.Instance.SelectObject(go);
 
-                Destroy(_ghost);
-                _ghost = null;
-                _currentData = null;
+                CleanupPlacement();
             }
         }
 
+        private void InitializeBuilding(GameObject go, Vector3Int cell, Vector3 snapped)
+        {
+            if (!go.TryGetComponent(out UnitSpawnPointHolder spawnHolder))
+                spawnHolder = go.AddComponent<UnitSpawnPointHolder>();
+
+            Vector3Int centerCell = GridManager.Instance.LayoutGrid.WorldToCell(snapped);
+            Vector3Int defaultSpawnCell = SpawnPointUtility.FindNearestFreeCell(centerCell, _currentData.size);
+            spawnHolder.SetSpawnCell(defaultSpawnCell);
+
+            if (go.TryGetComponent(out BuildingHealth health))
+                health.Initialize(_currentData.health);
+
+            if (go.TryGetComponent(out UnitProducer producer))
+            {
+                producer.SetFactory(UnitFactoryMB.Instance);
+            }
+        }
 
         public void StartPlacing(BaseBuildingData data)
         {
-            if (_ghost != null) Destroy(_ghost);
+            if (_ghost != null)
+                Destroy(_ghost);
 
             _currentData = data;
+
             _ghost = Instantiate(data.prefab);
             _ghostRenderer = _ghost.GetComponentInChildren<SpriteRenderer>();
             _originalSortingOrder = _ghostRenderer.sortingOrder;
             _ghostRenderer.sortingOrder = _originalSortingOrder + 1;
             _ghostRenderer.color = invalidColor;
 
-            var mouseWorld = _cam.ScreenToWorldPoint(Input.mousePosition);
+            Vector3 mouseWorld = _cam.ScreenToWorldPoint(Input.mousePosition);
             mouseWorld.z = 0;
 
-            var cell = GridManager.Instance.LayoutGrid.WorldToCell(mouseWorld);
+            Vector3Int cell = GridManager.Instance.LayoutGrid.WorldToCell(mouseWorld);
             _ghost.transform.position = GridManager.Instance.GetSnappedPosition(cell, data.size);
+        }
+
+        private void CleanupPlacement()
+        {
+            if (_ghost != null)
+                Destroy(_ghost);
+
+            _ghost = null;
+            _currentData = null;
         }
     }
 }

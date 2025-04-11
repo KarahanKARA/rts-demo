@@ -33,17 +33,28 @@ namespace Managers
 
         public GameObject Get(string key, GameObject prefab, Transform parent)
         {
+            GameObject obj;
+
             if (pool.ContainsKey(key) && pool[key].Count > 0)
             {
-                GameObject obj = pool[key].Dequeue();
-                obj.SetActive(true);
+                obj = pool[key].Dequeue();
                 obj.transform.SetParent(parent, false);
-                return obj;
+                obj.transform.localPosition = Vector3.zero; 
+                obj.SetActive(true);
+            }
+            else
+            {
+                obj = Instantiate(prefab, parent);
+                obj.name = key;
             }
 
-            GameObject newObj = Instantiate(prefab, parent);
-            newObj.name = key;
-            return newObj;
+            return obj;
+        }
+
+
+        public bool HasAvailable(string key)
+        {
+            return pool.ContainsKey(key) && pool[key].Count > 0;
         }
 
         public void Return(string key, GameObject obj)

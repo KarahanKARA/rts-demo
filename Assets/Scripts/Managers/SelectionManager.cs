@@ -16,7 +16,7 @@ namespace Managers
         private SpriteRenderer _selectedRenderer;
         private Color _originalColor;
 
-        [SerializeField] private Color selectionColor = new(0.5f, 0.8f, 1f, 1f);
+        [SerializeField] private Color selectionColor = new(0.65f, 0.8f, 1f, 1f);
 
         private void Awake()
         {
