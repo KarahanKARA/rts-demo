@@ -10,6 +10,8 @@ namespace UI.Panels
     public class InfoPanelController : MonoBehaviour
     {
         [SerializeField] private GameObject panelRoot;
+        [SerializeField] private GameObject scrollView;
+        [SerializeField] private TextMeshProUGUI informationText;
         [SerializeField] private Image iconImage;
         [SerializeField] private TextMeshProUGUI nameText;
         [SerializeField] private Slider healthSlider;
@@ -17,6 +19,7 @@ namespace UI.Panels
         [SerializeField] private TextMeshProUGUI attackText;
 
         private Core.Health.HealthBase _currentHealth;
+        private GameObject _selected;
 
         private void Start()
         {
@@ -26,16 +29,47 @@ namespace UI.Panels
 
         private void OnSelectionChanged(GameObject selected)
         {
+            _selected = selected;
+
+            var selectedUnits = SelectionManager.Instance.UnitSelector.GetSelected();
+
+            if (selectedUnits.Count > 1)
+            {
+                ShowMultipleSelectionInfo(selectedUnits.Count);
+                return;
+            }
+
             if (selected == null)
             {
                 ClosePanel();
                 return;
             }
 
+            ShowSingleSelectionInfo(selected);
+        }
+
+        private void ShowMultipleSelectionInfo(int unitCount)
+        {
+            panelRoot.SetActive(true);
+            scrollView.SetActive(false);
+            iconImage.enabled = false;
+            nameText.text = "";
+            attackText.gameObject.SetActive(false);
+
+            informationText.text = $"{unitCount} soldier(s) selected";
+            informationText.gameObject.SetActive(true);
+        }
+
+        private void ShowSingleSelectionInfo(GameObject selected)
+        {
+            scrollView.SetActive(true);
+            iconImage.enabled = true;
+            informationText.gameObject.SetActive(false);
+            attackText.gameObject.SetActive(false);
+
             Sprite icon = null;
             string nameStr = "";
-
-            attackText.gameObject.SetActive(false);
+            _currentHealth = null;
 
             if (selected.TryGetComponent(out BuildingDataHolder buildingData))
             {
@@ -49,10 +83,16 @@ namespace UI.Panels
                 nameStr = unitData.Data.unitName;
                 _currentHealth = unitData.Health;
 
-                attackText.text = "ATK:" + unitData.Data.damage;
+                attackText.text = $"ATK: {unitData.Data.damage}";
                 attackText.gameObject.SetActive(true);
             }
             else
+            {
+                ClosePanel();
+                return;
+            }
+
+            if (_currentHealth == null)
             {
                 ClosePanel();
                 return;
@@ -79,32 +119,57 @@ namespace UI.Panels
         private void ClosePanel()
         {
             panelRoot.SetActive(false);
+            scrollView.SetActive(true);
+            iconImage.enabled = true;
+            informationText.text = "";
             _currentHealth = null;
+            _selected = null;
         }
 
         public void OnClickDestroy()
         {
-            if (SelectionManager.Instance.SelectedObject == null)
+            var selectedUnits = SelectionManager.Instance.UnitSelector.GetSelected();
+
+            if (selectedUnits.Count > 1)
+            {
+                foreach (var selectable in selectedUnits)
+                {
+                    if (selectable is MonoBehaviour mb &&
+                        mb.TryGetComponent<UnitHealth>(out var unitHealth))
+                    {
+                        unitHealth.TakeDamage(unitHealth.MaxHealth);
+                    }
+                }
+
+                SelectionManager.Instance.UnitSelector.DeselectAllPublic();
+                SelectionManager.Instance.Deselect();
+                ClosePanel();
                 return;
+            }
 
             var obj = SelectionManager.Instance.SelectedObject;
 
-            if (obj.TryGetComponent(out BuildingHealth buildingHealth))
+            if (obj == null)
+            {
+                ClosePanel();
+                return;
+            }
+
+            if (obj.TryGetComponent<UnitHealth>(out var unit))
+            {
+                unit.TakeDamage(unit.MaxHealth);
+            }
+            else if (obj.TryGetComponent<BuildingHealth>(out var buildingHealth))
             {
                 buildingHealth.DestroyBuilding();
             }
-            else if (obj.TryGetComponent(out UnitHealth unitHealth))
-            {
-                unitHealth.TakeDamage(unitHealth.CurrentHealth); 
-            }
             else
             {
-                Destroy(obj); 
+                Destroy(obj);
             }
 
             SelectionManager.Instance.Deselect();
-            panelRoot.SetActive(false);
+            ClosePanel();
         }
-
     }
 }

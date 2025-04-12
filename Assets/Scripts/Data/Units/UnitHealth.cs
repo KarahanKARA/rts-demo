@@ -1,5 +1,7 @@
+using System;
 using Core.Health;
 using UnityEngine;
+using Managers;
 
 namespace Data.Units
 {
@@ -11,14 +13,16 @@ namespace Data.Units
         public override int MaxHealth => maxHealth;
         public override int CurrentHealth => currentHealth;
 
+        public event Action<GameObject> OnDied;
+
         private void Awake()
         {
             currentHealth = maxHealth;
         }
 
-        public void Initialize(int healthFromData)
+        public void Initialize(int health)
         {
-            maxHealth = healthFromData;
+            maxHealth = health;
             currentHealth = maxHealth;
             OnHealthChanged.Invoke(currentHealth, maxHealth);
         }
@@ -35,9 +39,11 @@ namespace Data.Units
 
         private void Die()
         {
+            OnDied?.Invoke(gameObject);
+
             string key = gameObject.name.Replace("(Clone)", "").Trim();
-            if (Managers.ObjectPoolManager.Instance != null)
-                Managers.ObjectPoolManager.Instance.Release(key, gameObject);
+            if (ObjectPoolManager.Instance != null)
+                ObjectPoolManager.Instance.Release(key, gameObject);
             else
                 Destroy(gameObject);
         }

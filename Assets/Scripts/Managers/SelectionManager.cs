@@ -11,6 +11,7 @@ namespace Managers
 
         public event Action<GameObject> OnSelectedChanged;
         public GameObject SelectedObject => _selectedObject;
+        public UnitSelectionHandler UnitSelector => unitSelector;
 
         [SerializeField] private UnitSelectionHandler unitSelector;
 
