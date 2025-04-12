@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using GridSystem;
 using UnityEngine;
@@ -13,7 +14,6 @@ namespace Data.Buildings
         private int _maxHealth;
         private int _currentHealth;
         
-
         public void Initialize(int hp)
         {
             _maxHealth = hp;
@@ -34,7 +34,9 @@ namespace Data.Buildings
         
         private void OnDestroy()
         {
-            if (TryGetComponent(out BuildingDataHolder holder))
+            if (!Application.isPlaying) return;
+
+            if (TryGetComponent(out BuildingDataHolder holder) && holder.Data != null)
             {
                 if (GridManager.Instance != null)
                 {
@@ -42,6 +44,7 @@ namespace Data.Buildings
                 }
             }
         }
+
 
 
         public int CurrentHealth => _currentHealth;
