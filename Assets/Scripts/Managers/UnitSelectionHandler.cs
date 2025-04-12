@@ -1,9 +1,8 @@
+using System;
 using System.Collections.Generic;
 using Core.Input;
 using Core.Interfaces;
-using Data.Units;
 using UnityEngine;
-using Utilities;
 
 namespace Managers
 {
@@ -12,13 +11,13 @@ namespace Managers
         [SerializeField] private RectTransform selectionBox;
         [SerializeField] private LayerMask unitLayer;
 
+        public event Action<int> OnMultipleSelection;
+
         private Vector2 _startPos;
         private Vector2 _endPos;
         private Camera _cam;
 
         private readonly List<ISelectable> _currentlySelected = new();
-
-        public IReadOnlyList<ISelectable> GetSelected() => _currentlySelected;
 
         private void Start()
         {
@@ -75,7 +74,7 @@ namespace Managers
             Vector2 min = Vector2.Min(_startPos, _endPos);
             Vector2 max = Vector2.Max(_startPos, _endPos);
 
-            foreach (var unit in UnitRegistry.AllUnits)
+            foreach (var unit in Utilities.UnitRegistry.AllUnits)
             {
                 if (unit == null) continue;
 
@@ -86,41 +85,39 @@ namespace Managers
                     Select(unit);
                 }
             }
+
+            if (_currentlySelected.Count > 1)
+            {
+                OnMultipleSelection?.Invoke(_currentlySelected.Count);
+            }
         }
 
         private void Select(GameObject go)
         {
             if (go.TryGetComponent<ISelectable>(out var selectable))
             {
-                _currentlySelected.Add(selectable);
-                selectable.OnSelect();
-
-                if (go.TryGetComponent<UnitHealth>(out var health))
+                if (!_currentlySelected.Contains(selectable))
                 {
-                    health.OnDied -= HandleUnitDeath;
-                    health.OnDied += HandleUnitDeath;
+                    _currentlySelected.Add(selectable);
                 }
+
+                selectable.OnSelect();
             }
         }
 
-        private void HandleUnitDeath(GameObject dead)
-        {
-            if (dead.TryGetComponent<ISelectable>(out var selectable) && _currentlySelected.Contains(selectable))
-                _currentlySelected.Remove(selectable);
-
-            if (SelectionManager.Instance.SelectedObject == dead)
-                SelectionManager.Instance.Deselect();
-        }
-
-        public void DeselectAllPublic() => DeselectAll();
-
         private void DeselectAll()
         {
+            _currentlySelected.RemoveAll(s => s == null);
+
             foreach (var selectable in _currentlySelected)
+            {
                 selectable?.OnDeselect();
+            }
 
             _currentlySelected.Clear();
         }
+
+        public void DeselectAllPublic() => DeselectAll();
 
         public void SelectSingle(GameObject go)
         {
@@ -130,15 +127,11 @@ namespace Managers
             {
                 _currentlySelected.Add(selectable);
                 selectable.OnSelect();
-
-                if (go.TryGetComponent<UnitHealth>(out var health))
-                {
-                    health.OnDied -= HandleUnitDeath;
-                    health.OnDied += HandleUnitDeath;
-                }
             }
 
             SelectionManager.Instance.SelectObject(go);
         }
+
+        public IReadOnlyList<ISelectable> GetSelected() => _currentlySelected;
     }
 }

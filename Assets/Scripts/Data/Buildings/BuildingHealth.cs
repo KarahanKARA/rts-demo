@@ -1,6 +1,6 @@
 using Core.Health;
+using GridSystem;
 using UnityEngine;
-using UnityEngine.Events;
 
 namespace Data.Buildings
 {
@@ -12,18 +12,20 @@ namespace Data.Buildings
         public override int MaxHealth => maxHealth;
         public override int CurrentHealth => currentHealth;
 
-        public void Initialize(int health)
+        private BaseBuildingData _data;
+
+        public void Initialize(BaseBuildingData data)
         {
-            maxHealth = health;
-            currentHealth = health;
-            OnHealthChanged.Invoke(currentHealth, maxHealth);
+            _data = data;
+            maxHealth = data.health;
+            currentHealth = maxHealth;
         }
 
         public override void TakeDamage(int amount)
         {
             currentHealth -= amount;
             currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
-            OnHealthChanged.Invoke(currentHealth, maxHealth);
+            OnHealthChanged?.Invoke(currentHealth, maxHealth);
 
             if (currentHealth <= 0)
                 DestroyBuilding();
@@ -31,7 +33,12 @@ namespace Data.Buildings
 
         public void DestroyBuilding()
         {
-            // Existing destroy logic
+            if (_data != null)
+            {
+                GridManager.Instance.FreeArea(transform.position, _data.size);
+            }
+
+            Destroy(gameObject);
         }
     }
 }

@@ -24,6 +24,8 @@ namespace UI.Panels
         private void Start()
         {
             SelectionManager.Instance.OnSelectedChanged += OnSelectionChanged;
+            SelectionManager.Instance.UnitSelector.OnMultipleSelection += HandleMultipleSelection;
+
             panelRoot.SetActive(false);
         }
 
@@ -46,6 +48,11 @@ namespace UI.Panels
             }
 
             ShowSingleSelectionInfo(selected);
+        }
+
+        private void HandleMultipleSelection(int count)
+        {
+            ShowMultipleSelectionInfo(count);
         }
 
         private void ShowMultipleSelectionInfo(int unitCount)

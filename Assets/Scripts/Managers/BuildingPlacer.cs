@@ -65,7 +65,7 @@ namespace Managers
                 Vector3Int defaultSpawnCell = SpawnPointUtility.FindNearestFreeCell(centerCell, _currentData.size);
                 spawnHolder.SetSpawnCell(defaultSpawnCell);
 
-                go.GetComponent<BuildingHealth>().Initialize(_currentData.health);
+                go.GetComponent<BuildingHealth>().Initialize(_currentData);
 
                 if (go.TryGetComponent(out UnitProducer producer))
                 {
