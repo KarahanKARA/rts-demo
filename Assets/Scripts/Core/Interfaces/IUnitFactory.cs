@@ -1,7 +1,7 @@
 using Data.Units;
 using UnityEngine;
 
-namespace Core.Factories
+namespace Core.Interfaces
 {
     public interface IUnitFactory
     {

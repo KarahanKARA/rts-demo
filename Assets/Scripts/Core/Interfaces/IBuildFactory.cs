@@ -1,7 +1,7 @@
 using Data.Buildings;
 using UnityEngine;
 
-namespace Core.Factories
+namespace Core.Interfaces
 {
     public interface IBuildingFactory
     {
