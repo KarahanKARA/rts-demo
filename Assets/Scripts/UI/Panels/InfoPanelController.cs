@@ -90,12 +90,21 @@ namespace UI.Panels
             var obj = SelectionManager.Instance.SelectedObject;
 
             if (obj.TryGetComponent(out BuildingHealth buildingHealth))
+            {
                 buildingHealth.DestroyBuilding();
+            }
+            else if (obj.TryGetComponent(out UnitHealth unitHealth))
+            {
+                unitHealth.TakeDamage(unitHealth.CurrentHealth); 
+            }
             else
-                Destroy(obj);
+            {
+                Destroy(obj); 
+            }
 
             SelectionManager.Instance.Deselect();
             panelRoot.SetActive(false);
         }
+
     }
 }
