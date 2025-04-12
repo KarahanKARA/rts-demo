@@ -2,7 +2,6 @@ using System;
 using Core.Input;
 using Core.Interfaces;
 using UnityEngine;
-using Utilities;
 
 namespace Managers
 {

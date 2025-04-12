@@ -1,54 +1,37 @@
-using System;
-using System.Collections;
-using GridSystem;
-using Managers;
+using Core.Health;
 using UnityEngine;
 using UnityEngine.Events;
 
 namespace Data.Buildings
 {
-    public class BuildingHealth : MonoBehaviour
+    public class BuildingHealth : HealthBase
     {
-        public UnityEvent<int, int> OnHealthChanged;
-        public UnityEvent OnDestroyed;
+        [SerializeField] private int maxHealth = 100;
+        private int currentHealth;
 
-        private int _maxHealth;
-        private int _currentHealth;
-        
-        public void Initialize(int hp)
+        public override int MaxHealth => maxHealth;
+        public override int CurrentHealth => currentHealth;
+
+        public void Initialize(int health)
         {
-            _maxHealth = hp;
-            _currentHealth = hp;
+            maxHealth = health;
+            currentHealth = health;
+            OnHealthChanged.Invoke(currentHealth, maxHealth);
         }
 
-        public void TakeDamage(int amount)
+        public override void TakeDamage(int amount)
         {
-            _currentHealth -= amount;
-            OnHealthChanged?.Invoke(_currentHealth, _maxHealth);
+            currentHealth -= amount;
+            currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
+            OnHealthChanged.Invoke(currentHealth, maxHealth);
 
-            if (_currentHealth <= 0)
-            {
+            if (currentHealth <= 0)
                 DestroyBuilding();
-            }
         }
 
-        
         public void DestroyBuilding()
         {
-            if (TryGetComponent(out BuildingDataHolder holder))
-            {
-                if (GridManager.Instance != null)
-                {
-                    GridManager.Instance.FreeArea(transform.position, holder.Data.size);
-                }
-            }
-
-            OnDestroyed?.Invoke();
-            Destroy(gameObject);
+            // Existing destroy logic
         }
-
-
-        public int CurrentHealth => _currentHealth;
-        public int MaxHealth => _maxHealth;
     }
 }

@@ -11,7 +11,6 @@ namespace Managers
     public class UnitController : MonoBehaviour, ISelectable, IDamageable, IControllable
     {
         [SerializeField] private float moveSpeed = 2f;
-        [SerializeField] private LayerMask unitLayer;
 
         private SpriteRenderer _renderer;
         private List<Vector3> _path;
@@ -25,9 +24,8 @@ namespace Managers
 
         private void OnDestroy()
         {
-           UnitRegistry.Unregister(gameObject);
+            UnitRegistry.Unregister(gameObject);
         }
-
 
         public void Initialize(UnitData data, Vector3 target)
         {
@@ -60,6 +58,9 @@ namespace Managers
             }
 
             _pathIndex = 0;
+
+            if (TryGetComponent(out UnitHealth health))
+                health.Initialize(data.health);
         }
 
         private void Update()
@@ -102,13 +103,12 @@ namespace Managers
                 _renderer.color = SelectionColors.DeselectedColor;
         }
 
-
         public void TakeDamage(int amount)
         {
             Debug.Log($"Unit {gameObject.name} took {amount} damage!");
             // TODO:  İleride health eklersen burada düşürürsün
         }
-        
+
         private void Die()
         {
             string key = gameObject.name.Replace("(Clone)", "").Trim();
@@ -121,7 +121,7 @@ namespace Managers
                 Destroy(gameObject);
             }
         }
-        
+
         public void MoveTo(Vector3 position)
         {
             Vector3Int startCell = GridManager.Instance.LayoutGrid.WorldToCell(transform.position);
@@ -175,32 +175,5 @@ namespace Managers
                 }
             }
         }
-
-        private Vector3Int FindNearestWalkableCell(Vector3Int targetCell, bool[,] grid)
-        {
-            int maxDistance = Mathf.Max(GridManager.Instance.GridWidth, GridManager.Instance.GridHeight);
-            
-            for (int distance = 1; distance < maxDistance; distance++)
-            {
-                for (int x = -distance; x <= distance; x++)
-                {
-                    for (int y = -distance; y <= distance; y++)
-                    {
-                        if (Mathf.Abs(x) != distance && Mathf.Abs(y) != distance)
-                            continue;
-
-                        Vector3Int testCell = new Vector3Int(targetCell.x + x, targetCell.y + y, 0);
-                        
-                        if (IsWithinBounds(testCell) && !grid[testCell.x, testCell.y])
-                        {
-                            return testCell;
-                        }
-                    }
-                }
-            }
-
-            return GridManager.Instance.LayoutGrid.WorldToCell(transform.position);
-        }
-
     }
 }

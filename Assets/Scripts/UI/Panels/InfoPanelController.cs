@@ -1,4 +1,5 @@
 using Data.Buildings;
+using Data.Units;
 using Managers;
 using TMPro;
 using UnityEngine;
@@ -13,8 +14,9 @@ namespace UI.Panels
         [SerializeField] private TextMeshProUGUI nameText;
         [SerializeField] private Slider healthSlider;
         [SerializeField] private TextMeshProUGUI healthText;
+        [SerializeField] private TextMeshProUGUI attackText;
 
-        private BuildingHealth _currentHealth;
+        private Core.Health.HealthBase _currentHealth;
 
         private void Start()
         {
@@ -30,21 +32,37 @@ namespace UI.Panels
                 return;
             }
 
-            if (!selected.TryGetComponent(out BuildingDataHolder holder))
+            Sprite icon = null;
+            string nameStr = "";
+
+            attackText.gameObject.SetActive(false);
+
+            if (selected.TryGetComponent(out BuildingDataHolder buildingData))
+            {
+                icon = buildingData.Data.icon;
+                nameStr = buildingData.Data.buildingName;
+                _currentHealth = buildingData.Health;
+            }
+            else if (selected.TryGetComponent(out UnitDataHolder unitData))
+            {
+                icon = unitData.Data.icon;
+                nameStr = unitData.Data.unitName;
+                _currentHealth = unitData.Health;
+
+                attackText.text = "ATK:" + unitData.Data.damage;
+                attackText.gameObject.SetActive(true);
+            }
+            else
             {
                 ClosePanel();
                 return;
             }
 
-            var data = holder.Data;
-            _currentHealth = holder.Health;
-
-            iconImage.sprite = data.icon;
-            nameText.text = data.buildingName;
+            iconImage.sprite = icon;
+            nameText.text = nameStr;
             healthSlider.maxValue = _currentHealth.MaxHealth;
             healthSlider.value = _currentHealth.CurrentHealth;
-
-            UpdateHealthBar(_currentHealth.CurrentHealth, _currentHealth.MaxHealth);
+            healthText.text = $"{_currentHealth.CurrentHealth} / {_currentHealth.MaxHealth}";
 
             _currentHealth.OnHealthChanged.RemoveListener(UpdateHealthBar);
             _currentHealth.OnHealthChanged.AddListener(UpdateHealthBar);
@@ -63,7 +81,7 @@ namespace UI.Panels
             panelRoot.SetActive(false);
             _currentHealth = null;
         }
-        
+
         public void OnClickDestroy()
         {
             if (SelectionManager.Instance.SelectedObject == null)
@@ -71,16 +89,12 @@ namespace UI.Panels
 
             var obj = SelectionManager.Instance.SelectedObject;
 
-            if (obj.TryGetComponent(out BuildingHealth health))
-            {
-                health.DestroyBuilding();
-            }
+            if (obj.TryGetComponent(out BuildingHealth buildingHealth))
+                buildingHealth.DestroyBuilding();
             else
-            {
                 Destroy(obj);
-            }
 
-            SelectionManager.Instance.Deselect(); 
+            SelectionManager.Instance.Deselect();
             panelRoot.SetActive(false);
         }
     }

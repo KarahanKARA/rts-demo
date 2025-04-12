@@ -11,7 +11,7 @@ namespace Data.Units
         [SerializeField] private LayerMask unitLayer;
 
         private int frameSkip = 0;
-        private const int separationEveryNFrames = 5;
+        private const int separationEveryNFrames = 3;
         
         private void FixedUpdate()
         {

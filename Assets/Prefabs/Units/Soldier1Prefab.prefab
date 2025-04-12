@@ -10,9 +10,11 @@ GameObject:
   m_Component:
   - component: {fileID: 6247225221132222083}
   - component: {fileID: 6247225221132222080}
+  - component: {fileID: -7808765259386632449}
   - component: {fileID: -4078880459409598333}
   - component: {fileID: 6654692018333641032}
-  - component: {fileID: -7808765259386632449}
+  - component: {fileID: 8795877567601962774}
+  - component: {fileID: -7870703151637374061}
   m_Layer: 6
   m_Name: Soldier1Prefab
   m_TagString: Unit
@@ -87,6 +89,22 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!58 &-7808765259386632449
+CircleCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6247225221132222081}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0, y: 0}
+  serializedVersion: 2
+  m_Radius: 0.64
 --- !u!114 &-4078880459409598333
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -100,10 +118,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   moveSpeed: 2
-  personalSpaceRadius: 0.3
-  unitLayer:
-    serializedVersion: 2
-    m_Bits: 64
 --- !u!114 &6654692018333641032
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -121,19 +135,33 @@ MonoBehaviour:
   unitLayer:
     serializedVersion: 2
     m_Bits: 64
---- !u!58 &-7808765259386632449
-CircleCollider2D:
+--- !u!114 &8795877567601962774
+MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6247225221132222081}
   m_Enabled: 1
-  m_Density: 1
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_UsedByEffector: 0
-  m_UsedByComposite: 0
-  m_Offset: {x: 0, y: 0}
-  serializedVersion: 2
-  m_Radius: 0.64
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6b53c7cf986c4c189d36a5756ac560aa, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  data: {fileID: 11400000, guid: d0129b0c8c3283749804b18757848931, type: 2}
+  health: {fileID: -7870703151637374061}
+--- !u!114 &-7870703151637374061
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6247225221132222081}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0dcd5e6ed2e541c49138224a3ff6e585, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  OnHealthChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  maxHealth: 10
