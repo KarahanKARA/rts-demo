@@ -27,8 +27,19 @@ namespace GridSystem
 
         public List<Vector3Int> FindPath(Vector3Int start, Vector3Int goal)
         {
-            if (!IsWalkable(start) || !IsWalkable(goal))
+            Debug.Log($"Pathfinder.FindPath called with start: {start}, goal: {goal}");
+            
+            if (!IsWalkable(start))
+            {
+                Debug.LogWarning($"Start position {start} is not walkable!");
                 return new List<Vector3Int>();
+            }
+
+            if (!IsWalkable(goal))
+            {
+                Debug.LogWarning($"Goal position {goal} is not walkable!");
+                return new List<Vector3Int>();
+            }
 
             var openSet = new PriorityQueue<Vector3Int>();
             var cameFrom = new Dictionary<Vector3Int, Vector3Int>();
@@ -39,17 +50,28 @@ namespace GridSystem
             gScore[start] = 0;
             fScore[start] = Heuristic(start, goal);
 
-            while (openSet.Count > 0)
+            int iterations = 0;
+            const int maxIterations = 1000;
+
+            while (openSet.Count > 0 && iterations < maxIterations)
             {
+                iterations++;
                 var current = openSet.Dequeue();
 
                 if (current == goal)
+                {
+                    Debug.Log($"Path found after {iterations} iterations!");
                     return ReconstructPath(cameFrom, current);
+                }
 
                 foreach (var dir in _directions)
                 {
                     var neighbor = current + new Vector3Int(dir.x, dir.y, 0);
-                    if (!IsWalkable(neighbor)) continue;
+                    if (!IsWalkable(neighbor))
+                    {
+                        Debug.Log($"Neighbor {neighbor} is not walkable, skipping...");
+                        continue;
+                    }
 
                     int tentativeG = gScore[current] + 1;
 
@@ -62,6 +84,15 @@ namespace GridSystem
                             openSet.Enqueue(neighbor, fScore[neighbor]);
                     }
                 }
+            }
+
+            if (iterations >= maxIterations)
+            {
+                Debug.LogWarning($"Pathfinding reached maximum iterations ({maxIterations}) without finding a path!");
+            }
+            else
+            {
+                Debug.LogWarning("No path found - open set is empty!");
             }
 
             return new List<Vector3Int>();
@@ -85,7 +116,10 @@ namespace GridSystem
 
         private bool IsWalkable(Vector3Int cell)
         {
-            return IsInBounds(cell) && _grid[cell.x, cell.y];
+            bool inBounds = IsInBounds(cell);
+            bool walkable = inBounds && !_grid[cell.x, cell.y];
+            Debug.Log($"Cell {cell} - InBounds: {inBounds}, Walkable: {walkable}");
+            return walkable;
         }
 
         private bool IsInBounds(Vector3Int cell)

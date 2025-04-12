@@ -14,6 +14,7 @@ namespace GridSystem
         [SerializeField] private GameSettings gameSettings;
 
         private bool[,] occupied;
+        private bool[,] buildingGrid;
         private Camera mainCam;
 
         public Grid LayoutGrid => layoutGrid;
@@ -39,6 +40,7 @@ namespace GridSystem
             tilemap.ClearAllTiles();
             overlayTilemap.ClearAllTiles();
             occupied = new bool[gameSettings.gridWidth, gameSettings.gridHeight];
+            buildingGrid = new bool[gameSettings.gridWidth, gameSettings.gridHeight];
 
             for (int x = 0; x < gameSettings.gridWidth; x++)
             {
@@ -95,7 +97,7 @@ namespace GridSystem
                     int gx = bottomLeft.x + x;
                     int gy = bottomLeft.y + y;
 
-                    if (!IsCellInBounds(gx, gy) || occupied[gx, gy])
+                    if (!IsCellInBounds(gx, gy) || buildingGrid[gx, gy])
                         return false;
                 }
             }
@@ -115,7 +117,10 @@ namespace GridSystem
                     int gy = bottomLeft.y + y;
 
                     if (IsCellInBounds(gx, gy))
+                    {
+                        buildingGrid[gx, gy] = true;
                         occupied[gx, gy] = true;
+                    }
                 }
             }
         }
@@ -133,7 +138,10 @@ namespace GridSystem
                     int gy = bottomLeft.y + y;
 
                     if (IsCellInBounds(gx, gy))
+                    {
+                        buildingGrid[gx, gy] = false;
                         occupied[gx, gy] = false;
+                    }
                 }
             }
         }
@@ -146,9 +154,9 @@ namespace GridSystem
         public bool IsCellOccupied(Vector3Int cell)
         {
             if (!IsCellInBounds(cell.x, cell.y)) return true;
-            return occupied[cell.x, cell.y];
+            return buildingGrid[cell.x, cell.y];
         }
 
-        public bool[,] GetOccupiedGrid() => occupied;
+        public bool[,] GetOccupiedGrid() => buildingGrid;
     }
 }

@@ -38,7 +38,16 @@ namespace Managers
                 spawnCell = SpawnPointUtility.FindNearestFreeCell(spawnCell, Vector2Int.one);
             }
 
-            var pathfinder = new Pathfinder(GridManager.Instance.GetOccupiedGrid());
+            // 🧠 Mevcut occupied grid'i kopyala
+            bool[,] gridCopy = (bool[,])GridManager.Instance.GetOccupiedGrid().Clone();
+
+            // 🧼 Spawn hücresini "yürünebilir" olarak işaretle
+            if (IsWithinBounds(spawnCell))
+            {
+                gridCopy[spawnCell.x, spawnCell.y] = true;
+            }
+
+            var pathfinder = new Pathfinder(gridCopy);
             var cellPath = pathfinder.FindPath(
                 GridManager.Instance.LayoutGrid.WorldToCell(transform.position),
                 spawnCell
@@ -60,7 +69,7 @@ namespace Managers
             if (_path == null || _pathIndex >= _path.Count) return;
 
             Vector3Int currentCell = GridManager.Instance.LayoutGrid.WorldToCell(transform.position);
-            if (!IsWithinBounds(currentCell) || !GridManager.Instance.IsAreaFree(currentCell, Vector2Int.one))
+            if (!IsWithinBounds(currentCell))
             {
                 _path = null;
                 return;
@@ -117,28 +126,34 @@ namespace Managers
         
         public void MoveTo(Vector3 position)
         {
-            Debug.Log("Girdi guzelim");
-            var targetCell = GridManager.Instance.LayoutGrid.WorldToCell(position);
+            Debug.Log($"{gameObject.name} moveTo called. World pos: {position}");
 
-            if (!GridUtility.IsValidCell(targetCell, Vector2Int.one)) return;
+            Vector3Int startCell = GridManager.Instance.LayoutGrid.WorldToCell(transform.position);
+            Vector3Int targetCell = GridManager.Instance.LayoutGrid.WorldToCell(position);
+            Debug.Log($"StartCell: {startCell}, TargetCell: {targetCell}");
 
-            var pathfinder = new Pathfinder(GridManager.Instance.GetOccupiedGrid());
-            var cellPath = pathfinder.FindPath(
-                GridManager.Instance.LayoutGrid.WorldToCell(transform.position),
-                targetCell
-            );
-           Debug.Log(cellPath.Count);
-            if (cellPath == null || cellPath.Count == 0) return;
-            Debug.Log("Girdi guzelim 2222 ");
+            // 🧠 Mevcut occupied grid'i kopyala (sadece binalar için)
+            bool[,] gridCopy = (bool[,])GridManager.Instance.GetOccupiedGrid().Clone();
 
+            var pathfinder = new Pathfinder(gridCopy);
+            var cellPath = pathfinder.FindPath(startCell, targetCell);
+
+            if (cellPath == null || cellPath.Count == 0)
+            {
+                Debug.LogWarning($"Path not found! Start: {startCell}, Target: {targetCell}");
+                Debug.Log($"Is start walkable: {IsWithinBounds(startCell) && !GridManager.Instance.IsCellOccupied(startCell)}");
+                Debug.Log($"Is target walkable: {IsWithinBounds(targetCell) && !GridManager.Instance.IsCellOccupied(targetCell)}");
+                return;
+            }
 
             _path = new List<Vector3>();
             foreach (var cell in cellPath)
             {
-                _path.Add(GridManager.Instance.LayoutGrid.CellToWorld(cell) + new Vector3(0.5f, 0.5f));
+                _path.Add(GridManager.Instance.LayoutGrid.CellToWorld(cell) + new Vector3(0.5f, 0.5f, 0));
             }
 
             _pathIndex = 0;
+            Debug.Log($"Path found with {cellPath.Count} steps!");
         }
 
     }
