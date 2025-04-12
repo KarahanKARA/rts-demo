@@ -1,4 +1,5 @@
 using System;
+using Core.Input;
 using Core.Interfaces;
 using UnityEngine;
 using Utilities;
@@ -13,14 +14,8 @@ namespace Managers
         public GameObject SelectedObject => _selectedObject;
 
         [SerializeField] private UnitSelectionHandler unitSelector;
-        [SerializeField] private Color selectionColor = new(0.65f, 0.8f, 1f, 1f);
 
-        private Camera _mainCamera;
         private GameObject _selectedObject;
-        private SpriteRenderer _selectedRenderer;
-        private Color _originalColor;
-
-        private bool _selectionHandledThisFrame = false;
 
         private void Awake()
         {
@@ -31,73 +26,55 @@ namespace Managers
             }
 
             Instance = this;
-            _mainCamera = Camera.main;
         }
 
-        private void Update()
+        private void Start()
         {
-            // Bu frame içinde seçim yapıldıysa Deselect çalışmasın
-            if (_selectionHandledThisFrame)
+            ClickInputRouter.Instance.OnLeftClickDown += HandleClick;
+        }
+
+        private void HandleClick(Vector3 worldPos)
+        {
+            var hit = Physics2D.OverlapPoint(worldPos);
+
+            if (hit != null && hit.TryGetComponent<ISelectable>(out var selectable))
             {
-                _selectionHandledThisFrame = false;
-                return;
-            }
-
-            if (Input.GetMouseButtonDown(0))
-            {
-                if (UIUtility.IsPointerOverUIObject()) return;
-
-                var mouseWorld = _mainCamera.ScreenToWorldPoint(Input.mousePosition);
-                mouseWorld.z = 0;
-
-                var hit = Physics2D.OverlapPoint(mouseWorld);
-                if (hit != null)
+                if (hit.CompareTag("Unit"))
                 {
-                    if (hit.TryGetComponent<ISelectable>(out var selectable))
-                    {
-                        if (hit.CompareTag("Unit"))
-                        {
-                            unitSelector.SelectSingle(hit.gameObject);
-                            _selectionHandledThisFrame = true;
-                        }
-                        else
-                        {
-                            SelectObject(hit.gameObject);
-                            _selectionHandledThisFrame = true;
-                        }
-                    }
+                    unitSelector.SelectSingle(hit.gameObject); 
                 }
                 else
                 {
-                    Deselect();
+                    SelectObject(hit.gameObject);
                 }
+            }
+            else
+            {
+                Deselect();
             }
         }
 
         public void SelectObject(GameObject go)
         {
-            if (_selectedRenderer != null)
-                _selectedRenderer.color = _originalColor;
+            if (_selectedObject == go) return;
+
+            if (_selectedObject != null && _selectedObject.TryGetComponent<ISelectable>(out var oldSelectable))
+                oldSelectable.OnDeselect();
 
             _selectedObject = go;
 
-            if (_selectedObject.TryGetComponent(out SpriteRenderer renderer))
-            {
-                _selectedRenderer = renderer;
-                _originalColor = renderer.color;
-                _selectedRenderer.color = selectionColor;
-            }
+            if (_selectedObject != null &&  _selectedObject.TryGetComponent<ISelectable>(out var newSelectable))
+                newSelectable.OnSelect();
 
             OnSelectedChanged?.Invoke(_selectedObject);
         }
 
         public void Deselect()
         {
-            if (_selectedRenderer != null)
-                _selectedRenderer.color = _originalColor;
+            if ( _selectedObject != null && _selectedObject.TryGetComponent<ISelectable>(out var selectable))
+                selectable.OnDeselect();
 
             _selectedObject = null;
-            _selectedRenderer = null;
             OnSelectedChanged?.Invoke(null);
         }
     }

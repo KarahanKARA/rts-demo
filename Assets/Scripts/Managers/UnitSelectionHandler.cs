@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Core.Input;
 using Core.Interfaces;
 using UnityEngine;
 
@@ -10,6 +11,7 @@ namespace Managers
         [SerializeField] private LayerMask unitLayer;
 
         private Vector2 _startPos;
+        private Vector2 _endPos;
         private Camera _cam;
 
         private readonly List<ISelectable> _currentlySelected = new();
@@ -18,66 +20,65 @@ namespace Managers
         {
             _cam = Camera.main;
             selectionBox.gameObject.SetActive(false);
+
+            ClickInputRouter.Instance.OnLeftClickDown += OnClickStart;
+            ClickInputRouter.Instance.OnLeftClickUp += OnClickEnd;
+            ClickInputRouter.Instance.OnRightClickDown += OnCommandIssued;
         }
 
         private void Update()
         {
-            HandleLeftClick();
-            HandleRightClick();
+            if (!selectionBox.gameObject.activeSelf) return;
+
+            Vector2 currentMouse = Input.mousePosition;
+            Vector2 size = currentMouse - _startPos;
+
+            selectionBox.sizeDelta = new Vector2(Mathf.Abs(size.x), Mathf.Abs(size.y));
+            selectionBox.anchoredPosition = _startPos + new Vector2(
+                size.x < 0 ? size.x : 0,
+                size.y < 0 ? size.y : 0
+            );
         }
-
-        private void HandleLeftClick()
+        
+        private void OnClickStart(Vector3 worldPos)
         {
-            if (Input.GetMouseButtonDown(0))
-            {
-                _startPos = Input.mousePosition;
-                selectionBox.gameObject.SetActive(true);
-            }
+            _startPos = Input.mousePosition;
+            selectionBox.sizeDelta = Vector2.zero;
+            selectionBox.gameObject.SetActive(true);
+        }
+        
 
-            if (Input.GetMouseButton(0))
-            {
-                Vector2 currentMouse = Input.mousePosition;
-                UpdateSelectionBox(_startPos, currentMouse);
-            }
+        private void OnClickEnd(Vector3 worldPos)
+        {
+            _endPos = Input.mousePosition;
 
-            if (Input.GetMouseButtonUp(0))
+            if (Vector2.Distance(_startPos, _endPos) < 10f)
             {
-                SelectUnitsInBox();
                 selectionBox.gameObject.SetActive(false);
+                return;
             }
+
+            SelectUnitsInBox();
+            selectionBox.gameObject.SetActive(false);
         }
 
-        private void HandleRightClick()
+        private void OnCommandIssued(Vector3 worldPos)
         {
-            if (!Input.GetMouseButtonDown(1)) return;
-
-            Vector3 mouseWorld = _cam.ScreenToWorldPoint(Input.mousePosition);
-            mouseWorld.z = 0;
-
             foreach (var selectable in _currentlySelected)
             {
                 if (selectable is MonoBehaviour mb && mb.TryGetComponent<IControllable>(out var ctrl))
                 {
-                    ctrl.MoveTo(mouseWorld);
+                    ctrl.MoveTo(worldPos);
                 }
             }
-        }
-
-        private void UpdateSelectionBox(Vector2 start, Vector2 end)
-        {
-            Vector2 size = end - start;
-
-            selectionBox.anchoredPosition = start;
-            selectionBox.sizeDelta = new Vector2(Mathf.Abs(size.x), Mathf.Abs(size.y));
-            selectionBox.anchoredPosition += new Vector2(size.x > 0 ? 0 : size.x, size.y > 0 ? 0 : size.y);
         }
 
         private void SelectUnitsInBox()
         {
             DeselectAll();
 
-            Vector2 min = selectionBox.anchoredPosition;
-            Vector2 max = min + selectionBox.sizeDelta;
+            Vector2 min = Vector2.Min(_startPos, _endPos);
+            Vector2 max = Vector2.Max(_startPos, _endPos);
 
             foreach (var unit in Utilities.UnitRegistry.AllUnits)
             {
@@ -96,6 +97,7 @@ namespace Managers
             {
                 selectable.OnSelect();
                 _currentlySelected.Add(selectable);
+                SelectionManager.Instance.SelectObject(go);
             }
         }
 
@@ -115,8 +117,8 @@ namespace Managers
 
             if (go.TryGetComponent<ISelectable>(out var selectable))
             {
-                selectable.OnSelect();
                 _currentlySelected.Add(selectable);
+                SelectionManager.Instance.SelectObject(go); 
             }
         }
     }

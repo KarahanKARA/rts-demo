@@ -14,14 +14,12 @@ namespace Managers
         [SerializeField] private LayerMask unitLayer;
 
         private SpriteRenderer _renderer;
-        private Color _originalColor;
         private List<Vector3> _path;
         private int _pathIndex;
 
         private void Awake()
         {
             _renderer = GetComponent<SpriteRenderer>();
-            _originalColor = _renderer.color;
             UnitRegistry.Register(gameObject);
         }
 
@@ -88,14 +86,15 @@ namespace Managers
         public void OnSelect()
         {
             if (_renderer != null)
-                _renderer.color = Color.cyan;
+                _renderer.color = SelectionColorsUtility.SelectedColor;
         }
 
         public void OnDeselect()
         {
             if (_renderer != null)
-                _renderer.color = _originalColor;
+                _renderer.color = SelectionColorsUtility.DeselectedColor;
         }
+
 
         public void TakeDamage(int amount)
         {

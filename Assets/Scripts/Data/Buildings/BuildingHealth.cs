@@ -44,15 +44,7 @@ namespace Data.Buildings
             }
 
             OnDestroyed?.Invoke();
-            if (ObjectPoolManager.Instance != null)
-            {
-                string key = gameObject.name.Replace("(Clone)", "").Trim();
-                ObjectPoolManager.Instance.Release(key, gameObject);
-            }
-            else
-            {
-                Destroy(gameObject);
-            }
+            Destroy(gameObject);
         }
 
 

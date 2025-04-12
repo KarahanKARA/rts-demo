@@ -1,5 +1,6 @@
 using Core.Interfaces;
 using UnityEngine;
+using Utilities;
 
 namespace Data.Buildings
 {
@@ -9,15 +10,11 @@ namespace Data.Buildings
 
         private BuildingHealth _health;
         private SpriteRenderer _renderer;
-        private Color _originalColor;
-        private Color _selectedColor = new Color(0.65f, 0.8f, 1f, 1f);
 
         private void Awake()
         {
             _health = GetComponent<BuildingHealth>();
-            _renderer = GetComponentInChildren<SpriteRenderer>();
-            if (_renderer != null)
-                _originalColor = _renderer.color;
+            _renderer = GetComponent<SpriteRenderer>();
         }
 
         public BuildingHealth Health => _health;
@@ -25,13 +22,13 @@ namespace Data.Buildings
         public void OnSelect()
         {
             if (_renderer != null)
-                _renderer.color = _selectedColor;
+                _renderer.color = SelectionColorsUtility.SelectedColor;
         }
 
         public void OnDeselect()
         {
             if (_renderer != null)
-                _renderer.color = _originalColor;
+                _renderer.color = SelectionColorsUtility.DeselectedColor;
         }
     }
 }
