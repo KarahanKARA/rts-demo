@@ -169,12 +169,12 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 26.75
+  m_fontSize: 19
   m_fontSizeBase: 24
   m_fontWeight: 400
   m_enableAutoSizing: 1
   m_fontSizeMin: 0
-  m_fontSizeMax: 100
+  m_fontSizeMax: 19
   m_fontStyle: 0
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
@@ -359,6 +359,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3d2d5f36a85046d0b2acef4b4085f8e7, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  rectTransform: {fileID: 2428338021261183770}
   iconImage: {fileID: 2428338019313997477}
   buildNameTmp: {fileID: 2428338020779090527}
+  rectTransform: {fileID: 2428338021261183770}

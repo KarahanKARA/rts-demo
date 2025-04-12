@@ -10,7 +10,7 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: ba66b1491af629347b18c0db05ef00b1, type: 3}
-  m_Name: Obstacle_Wall
+  m_Name: 6_Obstacle_Wall
   m_EditorClassIdentifier: 
   buildingName: Obstacle Wall
   icon: {fileID: 21300000, guid: f1a235c5f7d55f84bbc9e738b1e0b661, type: 3}

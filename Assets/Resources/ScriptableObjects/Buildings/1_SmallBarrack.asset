@@ -10,14 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 00855d27656e3744db7a2b1a70693f6d, type: 3}
-  m_Name: LargeBarrack
+  m_Name: 1_SmallBarrack
   m_EditorClassIdentifier: 
-  buildingName: Large Barrack
-  icon: {fileID: 21300000, guid: 5cceaf70cdf327c47ae8f34b551d1a04, type: 3}
-  prefab: {fileID: 4123888412761918000, guid: 921884c80e0061f449b04d15699c531e, type: 3}
-  size: {x: 4, y: 4}
+  buildingName: Small Barrack
+  icon: {fileID: 21300000, guid: 1866500c4a6a4c44192a4267e704a2e1, type: 3}
+  prefab: {fileID: 4123888412761918000, guid: e0d28d55fd36b2f418413ac7324b6d4f, type: 3}
+  size: {x: 2, y: 2}
   health: 100
   producibleUnits:
   - {fileID: 11400000, guid: d0129b0c8c3283749804b18757848931, type: 2}
-  - {fileID: 11400000, guid: ed153073618ca5147947336e13d697d4, type: 2}
-  - {fileID: 11400000, guid: a6292754e01d0084bb194a1a2b9bdc8f, type: 2}

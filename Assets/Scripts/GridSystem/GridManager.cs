@@ -122,6 +122,25 @@ namespace GridSystem
                 }
             }
         }
+        
+        public void FreeArea(Vector3 worldPos, Vector2Int size)
+        {
+            Vector3Int centerCell = layoutGrid.WorldToCell(worldPos);
+            Vector3Int bottomLeft = GetBottomLeftCell(centerCell, size);
+
+            for (int x = 0; x < size.x; x++)
+            {
+                for (int y = 0; y < size.y; y++)
+                {
+                    int gx = bottomLeft.x + x;
+                    int gy = bottomLeft.y + y;
+
+                    if (gx >= 0 && gx < occupied.GetLength(0) && gy >= 0 && gy < occupied.GetLength(1))
+                        occupied[gx, gy] = false;
+                }
+            }
+        }
+
 
         public bool[,] GetOccupiedGrid() => occupied;
     }
