@@ -1,7 +1,7 @@
 namespace Core.Interfaces
 {
-    public class IDamageable
+    public interface IDamageable
     {
-        
+        void TakeDamage(int amount);
     }
 }

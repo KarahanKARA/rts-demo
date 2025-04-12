@@ -1,7 +1,7 @@
 namespace Core.Interfaces
 {
-    public class IControllable
+    public interface IControllable
     {
-        
+        void MoveTo(UnityEngine.Vector3 position);
     }
 }

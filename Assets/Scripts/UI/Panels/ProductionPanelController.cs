@@ -29,6 +29,7 @@ namespace UI.Panels
             {
                 var go = Instantiate(buttonPrefab, contentParent);
                 var buttonUI = go.GetComponent<ProductionButtonUI>();
+                if (unit == null) continue;
                 buttonUI.Setup(unit, OnProduceClicked);
                 go.SetActive(false); 
                 _buttons.Add(buttonUI);

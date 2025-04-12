@@ -95,10 +95,7 @@ namespace GridSystem
                     int gx = bottomLeft.x + x;
                     int gy = bottomLeft.y + y;
 
-                    if (gx < 0 || gx >= occupied.GetLength(0) || gy < 0 || gy >= occupied.GetLength(1))
-                        return false;
-
-                    if (occupied[gx, gy])
+                    if (!IsCellInBounds(gx, gy) || occupied[gx, gy])
                         return false;
                 }
             }
@@ -117,16 +114,15 @@ namespace GridSystem
                     int gx = bottomLeft.x + x;
                     int gy = bottomLeft.y + y;
 
-                    if (gx >= 0 && gx < occupied.GetLength(0) && gy >= 0 && gy < occupied.GetLength(1))
+                    if (IsCellInBounds(gx, gy))
                         occupied[gx, gy] = true;
                 }
             }
         }
-        
+
         public void FreeArea(Vector3 worldPos, Vector2Int size)
         {
             Vector3Int centerCell = layoutGrid.WorldToCell(worldPos);
-
             Vector3Int bottomLeft = GetBottomLeftCell(centerCell, size);
 
             for (int x = 0; x < size.x; x++)
@@ -136,15 +132,22 @@ namespace GridSystem
                     int gx = bottomLeft.x + x;
                     int gy = bottomLeft.y + y;
 
-                    if (gx >= 0 && gx < occupied.GetLength(0) && gy >= 0 && gy < occupied.GetLength(1))
-                    {
+                    if (IsCellInBounds(gx, gy))
                         occupied[gx, gy] = false;
-                    }
                 }
             }
         }
 
+        public bool IsCellInBounds(int x, int y)
+        {
+            return x >= 0 && x < GridWidth && y >= 0 && y < GridHeight;
+        }
 
+        public bool IsCellOccupied(Vector3Int cell)
+        {
+            if (!IsCellInBounds(cell.x, cell.y)) return true;
+            return occupied[cell.x, cell.y];
+        }
 
         public bool[,] GetOccupiedGrid() => occupied;
     }

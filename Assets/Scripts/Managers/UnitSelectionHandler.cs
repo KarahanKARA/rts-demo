@@ -1,7 +1,6 @@
 using System.Collections.Generic;
+using Core.Interfaces;
 using UnityEngine;
-using UnityEngine.UI;
-using Managers;
 
 namespace Managers
 {
@@ -12,7 +11,8 @@ namespace Managers
 
         private Vector2 _startPos;
         private Camera _cam;
-        private List<GameObject> _currentlySelected = new();
+
+        private readonly List<ISelectable> _currentlySelected = new();
 
         private void Start()
         {
@@ -21,6 +21,12 @@ namespace Managers
         }
 
         private void Update()
+        {
+            HandleLeftClick();
+            HandleRightClick();
+        }
+
+        private void HandleLeftClick()
         {
             if (Input.GetMouseButtonDown(0))
             {
@@ -41,6 +47,22 @@ namespace Managers
             }
         }
 
+        private void HandleRightClick()
+        {
+            if (!Input.GetMouseButtonDown(1)) return;
+
+            Vector3 mouseWorld = _cam.ScreenToWorldPoint(Input.mousePosition);
+            mouseWorld.z = 0;
+
+            foreach (var selectable in _currentlySelected)
+            {
+                if (selectable is MonoBehaviour mb && mb.TryGetComponent<IControllable>(out var ctrl))
+                {
+                    ctrl.MoveTo(mouseWorld);
+                }
+            }
+        }
+
         private void UpdateSelectionBox(Vector2 start, Vector2 end)
         {
             Vector2 size = end - start;
@@ -57,37 +79,45 @@ namespace Managers
             Vector2 min = selectionBox.anchoredPosition;
             Vector2 max = min + selectionBox.sizeDelta;
 
-            foreach (var unit in GameObject.FindGameObjectsWithTag("Unit"))
+            foreach (var unit in Utilities.UnitRegistry.AllUnits)
             {
                 Vector3 screenPos = RectTransformUtility.WorldToScreenPoint(_cam, unit.transform.position);
-
                 if (screenPos.x >= min.x && screenPos.x <= max.x &&
                     screenPos.y >= min.y && screenPos.y <= max.y)
                 {
-                    Select(unit);
+                    Select(unit.gameObject);
                 }
             }
         }
 
         private void Select(GameObject go)
         {
-            _currentlySelected.Add(go);
-
-            if (go.TryGetComponent(out SpriteRenderer rend))
+            if (go.TryGetComponent<ISelectable>(out var selectable))
             {
-                rend.color = Color.cyan;
+                selectable.OnSelect();
+                _currentlySelected.Add(selectable);
             }
         }
 
         private void DeselectAll()
         {
-            foreach (var go in _currentlySelected)
+            foreach (var selectable in _currentlySelected)
             {
-                if (go != null && go.TryGetComponent(out SpriteRenderer rend))
-                    rend.color = Color.white;
+                selectable?.OnDeselect();
             }
 
             _currentlySelected.Clear();
+        }
+
+        public void SelectSingle(GameObject go)
+        {
+            DeselectAll();
+
+            if (go.TryGetComponent<ISelectable>(out var selectable))
+            {
+                selectable.OnSelect();
+                _currentlySelected.Add(selectable);
+            }
         }
     }
 }

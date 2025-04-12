@@ -51,7 +51,13 @@ namespace Managers
             return obj;
         }
 
-
+        public void Release(string key, GameObject obj)
+        {
+            obj.SetActive(false);
+            obj.transform.SetParent(transform);
+            pool[key].Enqueue(obj);
+        }
+        
         public bool HasAvailable(string key)
         {
             return pool.ContainsKey(key) && pool[key].Count > 0;

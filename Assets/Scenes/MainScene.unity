@@ -2954,6 +2954,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d9a7a3d35bdf85745b3613700505b485, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  unitSelector: {fileID: 245368418}
   selectionColor: {r: 0.5, g: 0.8, b: 1, a: 1}
 --- !u!1001 &2036262340
 PrefabInstance:

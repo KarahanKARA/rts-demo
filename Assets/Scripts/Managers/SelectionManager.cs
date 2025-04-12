@@ -1,4 +1,5 @@
 using System;
+using Core.Interfaces;
 using UnityEngine;
 using Utilities;
 
@@ -9,14 +10,17 @@ namespace Managers
         public static SelectionManager Instance { get; private set; }
 
         public event Action<GameObject> OnSelectedChanged;
-
         public GameObject SelectedObject => _selectedObject;
+
+        [SerializeField] private UnitSelectionHandler unitSelector;
+        [SerializeField] private Color selectionColor = new(0.65f, 0.8f, 1f, 1f);
+
         private Camera _mainCamera;
         private GameObject _selectedObject;
         private SpriteRenderer _selectedRenderer;
         private Color _originalColor;
 
-        [SerializeField] private Color selectionColor = new(0.65f, 0.8f, 1f, 1f);
+        private bool _selectionHandledThisFrame = false;
 
         private void Awake()
         {
@@ -32,6 +36,13 @@ namespace Managers
 
         private void Update()
         {
+            // Bu frame içinde seçim yapıldıysa Deselect çalışmasın
+            if (_selectionHandledThisFrame)
+            {
+                _selectionHandledThisFrame = false;
+                return;
+            }
+
             if (Input.GetMouseButtonDown(0))
             {
                 if (UIUtility.IsPointerOverUIObject()) return;
@@ -42,7 +53,19 @@ namespace Managers
                 var hit = Physics2D.OverlapPoint(mouseWorld);
                 if (hit != null)
                 {
-                    SelectObject(hit.gameObject);
+                    if (hit.TryGetComponent<ISelectable>(out var selectable))
+                    {
+                        if (hit.CompareTag("Unit"))
+                        {
+                            unitSelector.SelectSingle(hit.gameObject);
+                            _selectionHandledThisFrame = true;
+                        }
+                        else
+                        {
+                            SelectObject(hit.gameObject);
+                            _selectionHandledThisFrame = true;
+                        }
+                    }
                 }
                 else
                 {
@@ -67,7 +90,6 @@ namespace Managers
 
             OnSelectedChanged?.Invoke(_selectedObject);
         }
-
 
         public void Deselect()
         {

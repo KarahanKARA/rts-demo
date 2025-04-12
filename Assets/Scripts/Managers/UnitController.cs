@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Core.Interfaces;
 using Data.Units;
 using GridSystem;
 using UnityEngine;
@@ -6,14 +7,29 @@ using Utilities;
 
 namespace Managers
 {
-    public class UnitController : MonoBehaviour
+    [RequireComponent(typeof(SpriteRenderer))]
+    public class UnitController : MonoBehaviour, ISelectable, IDamageable, IControllable
     {
         [SerializeField] private float moveSpeed = 2f;
-        [SerializeField] private float personalSpaceRadius = 0.3f;
         [SerializeField] private LayerMask unitLayer;
 
+        private SpriteRenderer _renderer;
+        private Color _originalColor;
         private List<Vector3> _path;
         private int _pathIndex;
+
+        private void Awake()
+        {
+            _renderer = GetComponent<SpriteRenderer>();
+            _originalColor = _renderer.color;
+            UnitRegistry.Register(gameObject);
+        }
+
+        private void OnDestroy()
+        {
+           UnitRegistry.Unregister(gameObject);
+        }
+
 
         public void Initialize(UnitData data, Vector3 target)
         {
@@ -30,10 +46,7 @@ namespace Managers
                 spawnCell
             );
 
-            if (cellPath == null || cellPath.Count == 0)
-            {
-                return;
-            }
+            if (cellPath == null || cellPath.Count == 0) return;
 
             _path = new List<Vector3>();
             foreach (var cell in cellPath)
@@ -48,7 +61,6 @@ namespace Managers
         {
             if (_path == null || _pathIndex >= _path.Count) return;
 
-            // 🚧 Şu anki pozisyon grid dışıysa veya bina üstündeyse hareket etmeyi bırak
             Vector3Int currentCell = GridManager.Instance.LayoutGrid.WorldToCell(transform.position);
             if (!IsWithinBounds(currentCell) || !GridManager.Instance.IsAreaFree(currentCell, Vector2Int.one))
             {
@@ -57,10 +69,6 @@ namespace Managers
             }
 
             Vector3 targetPos = _path[_pathIndex];
-
-            // 🧍‍♂️ Collision kontrol
-            Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, personalSpaceRadius, unitLayer);
-            if (hits.Length > 1) return;
 
             Vector3 dir = (targetPos - transform.position).normalized;
             transform.position += dir * (moveSpeed * Time.deltaTime);
@@ -71,11 +79,66 @@ namespace Managers
             }
         }
 
-
         private bool IsWithinBounds(Vector3Int cell)
         {
             return cell.x >= 0 && cell.x < GridManager.Instance.GridWidth &&
                    cell.y >= 0 && cell.y < GridManager.Instance.GridHeight;
         }
+
+        public void OnSelect()
+        {
+            if (_renderer != null)
+                _renderer.color = Color.cyan;
+        }
+
+        public void OnDeselect()
+        {
+            if (_renderer != null)
+                _renderer.color = _originalColor;
+        }
+
+        public void TakeDamage(int amount)
+        {
+            Debug.Log($"Unit {gameObject.name} took {amount} damage!");
+            // TODO:  İleride health eklersen burada düşürürsün
+        }
+        
+        private void Die()
+        {
+            string key = gameObject.name.Replace("(Clone)", "").Trim();
+            if (ObjectPoolManager.Instance != null)
+            {
+                ObjectPoolManager.Instance.Release(key, gameObject);
+            }
+            else
+            {
+                Destroy(gameObject);
+            }
+        }
+        
+        public void MoveTo(Vector3 position)
+        {
+            var targetCell = GridManager.Instance.LayoutGrid.WorldToCell(position);
+
+            if (!GridUtility.IsValidCell(targetCell, Vector2Int.one)) return;
+
+            var pathfinder = new Pathfinder(GridManager.Instance.GetOccupiedGrid());
+            var cellPath = pathfinder.FindPath(
+                GridManager.Instance.LayoutGrid.WorldToCell(transform.position),
+                targetCell
+            );
+           
+            if (cellPath == null || cellPath.Count == 0) return;
+
+
+            _path = new List<Vector3>();
+            foreach (var cell in cellPath)
+            {
+                _path.Add(GridManager.Instance.LayoutGrid.CellToWorld(cell) + new Vector3(0.5f, 0.5f));
+            }
+
+            _pathIndex = 0;
+        }
+
     }
 }

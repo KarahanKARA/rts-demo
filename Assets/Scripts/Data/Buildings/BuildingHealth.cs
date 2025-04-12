@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using GridSystem;
+using Managers;
 using UnityEngine;
 using UnityEngine.Events;
 
@@ -43,7 +44,15 @@ namespace Data.Buildings
             }
 
             OnDestroyed?.Invoke();
-            Destroy(gameObject);
+            if (ObjectPoolManager.Instance != null)
+            {
+                string key = gameObject.name.Replace("(Clone)", "").Trim();
+                ObjectPoolManager.Instance.Release(key, gameObject);
+            }
+            else
+            {
+                Destroy(gameObject);
+            }
         }
 
 
