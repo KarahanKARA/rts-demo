@@ -27,24 +27,24 @@ namespace Data.Buildings
 
             if (_currentHealth <= 0)
             {
-                OnDestroyed?.Invoke();
-                Destroy(gameObject);
+                DestroyBuilding();
             }
         }
-        
-        private void OnDestroy()
-        {
-            if (!Application.isPlaying) return;
 
-            if (TryGetComponent(out BuildingDataHolder holder) && holder.Data != null)
+        
+        public void DestroyBuilding()
+        {
+            if (TryGetComponent(out BuildingDataHolder holder))
             {
                 if (GridManager.Instance != null)
                 {
                     GridManager.Instance.FreeArea(transform.position, holder.Data.size);
                 }
             }
-        }
 
+            OnDestroyed?.Invoke();
+            Destroy(gameObject);
+        }
 
 
         public int CurrentHealth => _currentHealth;
