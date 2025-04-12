@@ -63,5 +63,18 @@ namespace UI.Panels
             panelRoot.SetActive(false);
             _currentHealth = null;
         }
+        
+        public void OnClickDestroy()
+        {
+            if (SelectionManager.Instance.SelectedObject == null)
+                return;
+
+            var obj = SelectionManager.Instance.SelectedObject;
+
+            SelectionManager.Instance.Deselect(); 
+            Destroy(obj);
+            panelRoot.SetActive(false);
+        }
+
     }
 }

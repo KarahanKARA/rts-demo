@@ -10,6 +10,9 @@ namespace UI
         [SerializeField] private Image iconImage;
         [SerializeField] private TextMeshProUGUI nameText;
         [SerializeField] private Button button;
+        [SerializeField] private TextMeshProUGUI hpText;
+        [SerializeField] private TextMeshProUGUI damageText;
+        
         public UnitData UnitData => unitData;
 
         private UnitData unitData;
@@ -19,6 +22,10 @@ namespace UI
             unitData = data;
             iconImage.sprite = data.icon;
             nameText.text = data.unitName;
+
+            hpText.text = $"HP: \n{data.health}";
+            damageText.text = $"DMG: \n{data.damage}";
+
             button.onClick.RemoveAllListeners();
             button.onClick.AddListener(() => onClick?.Invoke(unitData));
         }
