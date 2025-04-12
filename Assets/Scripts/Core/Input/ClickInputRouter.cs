@@ -11,6 +11,7 @@ namespace Core.Input
         public event Action<Vector3> OnLeftClickUp;
         public event Action<Vector3> OnRightClickDown;
 
+        private Camera _mainCamera;
         private void Awake()
         {
             if (Instance != null && Instance != this)
@@ -20,6 +21,8 @@ namespace Core.Input
             }
 
             Instance = this;
+            
+            _mainCamera = Camera.main;
         }
 
         private void Update()
@@ -28,7 +31,7 @@ namespace Core.Input
                 UnityEngine.EventSystems.EventSystem.current.IsPointerOverGameObject())
                 return;
 
-            Vector3 worldPos = Camera.main.ScreenToWorldPoint(UnityEngine.Input.mousePosition);
+            Vector3 worldPos = _mainCamera.ScreenToWorldPoint(UnityEngine.Input.mousePosition);
             worldPos.z = 0;
 
             if (UnityEngine.Input.GetMouseButtonDown(0))

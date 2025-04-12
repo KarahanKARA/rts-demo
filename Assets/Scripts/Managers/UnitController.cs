@@ -117,6 +117,7 @@ namespace Managers
         
         public void MoveTo(Vector3 position)
         {
+            Debug.Log("Girdi guzelim");
             var targetCell = GridManager.Instance.LayoutGrid.WorldToCell(position);
 
             if (!GridUtility.IsValidCell(targetCell, Vector2Int.one)) return;
@@ -126,8 +127,9 @@ namespace Managers
                 GridManager.Instance.LayoutGrid.WorldToCell(transform.position),
                 targetCell
             );
-           
+           Debug.Log(cellPath.Count);
             if (cellPath == null || cellPath.Count == 0) return;
+            Debug.Log("Girdi guzelim 2222 ");
 
 
             _path = new List<Vector3>();
