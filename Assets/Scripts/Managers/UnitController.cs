@@ -48,18 +48,34 @@ namespace Managers
         {
             if (_path == null || _pathIndex >= _path.Count) return;
 
-            Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, personalSpaceRadius, unitLayer);
-            if (hits.Length > 1) return; 
+            // 🚧 Şu anki pozisyon grid dışıysa veya bina üstündeyse hareket etmeyi bırak
+            Vector3Int currentCell = GridManager.Instance.LayoutGrid.WorldToCell(transform.position);
+            if (!IsWithinBounds(currentCell) || !GridManager.Instance.IsAreaFree(currentCell, Vector2Int.one))
+            {
+                _path = null;
+                return;
+            }
 
             Vector3 targetPos = _path[_pathIndex];
-            Vector3 dir = (targetPos - transform.position).normalized;
 
+            // 🧍‍♂️ Collision kontrol
+            Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, personalSpaceRadius, unitLayer);
+            if (hits.Length > 1) return;
+
+            Vector3 dir = (targetPos - transform.position).normalized;
             transform.position += dir * (moveSpeed * Time.deltaTime);
 
             if (Vector3.Distance(transform.position, targetPos) < 0.1f)
             {
                 _pathIndex++;
             }
+        }
+
+
+        private bool IsWithinBounds(Vector3Int cell)
+        {
+            return cell.x >= 0 && cell.x < GridManager.Instance.GridWidth &&
+                   cell.y >= 0 && cell.y < GridManager.Instance.GridHeight;
         }
     }
 }

@@ -72,10 +72,36 @@ namespace Managers
                 }
 
                 SelectionManager.Instance.SelectObject(go);
-
+                PushUnitsAwayFromBuilding(snapped, _currentData.size);
                 Destroy(_ghost);
                 _ghost = null;
                 _currentData = null;
+            }
+        }
+        
+        private void PushUnitsAwayFromBuilding(Vector3 centerWorldPos, Vector2Int size)
+        {
+            Vector3Int centerCell = GridManager.Instance.LayoutGrid.WorldToCell(centerWorldPos);
+            Vector3Int bottomLeft = GridManager.Instance.GetBottomLeftCell(centerCell, size);
+            Vector3 sizeOffset = new Vector3(0.5f, 0.5f);
+
+            for (int x = 0; x < size.x; x++)
+            {
+                for (int y = 0; y < size.y; y++)
+                {
+                    Vector3Int cell = new Vector3Int(bottomLeft.x + x, bottomLeft.y + y, 0);
+                    Vector3 worldPos = GridManager.Instance.LayoutGrid.CellToWorld(cell) + sizeOffset;
+
+                    Collider2D[] hits = Physics2D.OverlapCircleAll(worldPos, 0.4f);
+                    foreach (var hit in hits)
+                    {
+                        if (hit.CompareTag("Unit"))
+                        {
+                            Vector3Int freeCell = SpawnPointUtility.FindNearestFreeCell(cell, Vector2Int.one);
+                            hit.transform.position = GridManager.Instance.LayoutGrid.CellToWorld(freeCell) + sizeOffset;
+                        }
+                    }
+                }
             }
         }
 

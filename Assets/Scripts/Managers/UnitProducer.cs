@@ -27,10 +27,15 @@ namespace Managers
             if (!_spawnPointHolder.CanProduce) return;
 
             Vector3 spawnPos = GridManager.Instance.LayoutGrid.CellToWorld(_spawnPointHolder.SpawnCell) + new Vector3(0.5f, 0.5f, 0f);
+
+            Vector2 randomOffset = Random.insideUnitCircle * 0.2f;
+            spawnPos += new Vector3(randomOffset.x, randomOffset.y, 0f);
+
             var unitGO = _unitFactory.CreateUnit(unitData, spawnPos);
 
             if (unitGO.TryGetComponent(out UnitController controller))
                 controller.Initialize(unitData, spawnPos);
         }
+
     }
 }

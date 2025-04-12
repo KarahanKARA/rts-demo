@@ -10,8 +10,9 @@ GameObject:
   m_Component:
   - component: {fileID: 6247225221132222083}
   - component: {fileID: 6247225221132222080}
-  - component: {fileID: 1473923879}
   - component: {fileID: -5293390552174240414}
+  - component: {fileID: -1063719734759293300}
+  - component: {fileID: 4757148210626596950}
   m_Layer: 6
   m_Name: Soldier3Prefab
   m_TagString: Unit
@@ -86,19 +87,6 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!65 &1473923879
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 6247225221132222081}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 2
-  m_Size: {x: 1.1, y: 1.1, z: 0.2}
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &-5293390552174240414
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -116,3 +104,36 @@ MonoBehaviour:
   unitLayer:
     serializedVersion: 2
     m_Bits: 64
+--- !u!114 &-1063719734759293300
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6247225221132222081}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6e2d4c6452a099d4c9160c57d89d9085, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  separationRadius: 0.4
+  pushStrength: 1.5
+  unitLayer:
+    serializedVersion: 2
+    m_Bits: 64
+--- !u!58 &4757148210626596950
+CircleCollider2D:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6247225221132222081}
+  m_Enabled: 1
+  m_Density: 1
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_UsedByEffector: 0
+  m_UsedByComposite: 0
+  m_Offset: {x: 0, y: 0}
+  serializedVersion: 2
+  m_Radius: 0.64
