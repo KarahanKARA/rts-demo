@@ -27,17 +27,13 @@ namespace GridSystem
 
         public List<Vector3Int> FindPath(Vector3Int start, Vector3Int goal)
         {
-            Debug.Log($"Pathfinder.FindPath called with start: {start}, goal: {goal}");
-            
             if (!IsWalkable(start))
             {
-                Debug.LogWarning($"Start position {start} is not walkable!");
                 return new List<Vector3Int>();
             }
 
             if (!IsWalkable(goal))
             {
-                Debug.LogWarning($"Goal position {goal} is not walkable!");
                 return new List<Vector3Int>();
             }
 
@@ -60,7 +56,6 @@ namespace GridSystem
 
                 if (current == goal)
                 {
-                    Debug.Log($"Path found after {iterations} iterations!");
                     return ReconstructPath(cameFrom, current);
                 }
 
@@ -69,7 +64,6 @@ namespace GridSystem
                     var neighbor = current + new Vector3Int(dir.x, dir.y, 0);
                     if (!IsWalkable(neighbor))
                     {
-                        Debug.Log($"Neighbor {neighbor} is not walkable, skipping...");
                         continue;
                     }
 
@@ -84,15 +78,6 @@ namespace GridSystem
                             openSet.Enqueue(neighbor, fScore[neighbor]);
                     }
                 }
-            }
-
-            if (iterations >= maxIterations)
-            {
-                Debug.LogWarning($"Pathfinding reached maximum iterations ({maxIterations}) without finding a path!");
-            }
-            else
-            {
-                Debug.LogWarning("No path found - open set is empty!");
             }
 
             return new List<Vector3Int>();
@@ -118,7 +103,6 @@ namespace GridSystem
         {
             bool inBounds = IsInBounds(cell);
             bool walkable = inBounds && !_grid[cell.x, cell.y];
-            Debug.Log($"Cell {cell} - InBounds: {inBounds}, Walkable: {walkable}");
             return walkable;
         }
 

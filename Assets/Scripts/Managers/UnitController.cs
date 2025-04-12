@@ -38,10 +38,8 @@ namespace Managers
                 spawnCell = SpawnPointUtility.FindNearestFreeCell(spawnCell, Vector2Int.one);
             }
 
-            // 🧠 Mevcut occupied grid'i kopyala
             bool[,] gridCopy = (bool[,])GridManager.Instance.GetOccupiedGrid().Clone();
 
-            // 🧼 Spawn hücresini "yürünebilir" olarak işaretle
             if (IsWithinBounds(spawnCell))
             {
                 gridCopy[spawnCell.x, spawnCell.y] = true;
@@ -126,34 +124,82 @@ namespace Managers
         
         public void MoveTo(Vector3 position)
         {
-            Debug.Log($"{gameObject.name} moveTo called. World pos: {position}");
-
             Vector3Int startCell = GridManager.Instance.LayoutGrid.WorldToCell(transform.position);
             Vector3Int targetCell = GridManager.Instance.LayoutGrid.WorldToCell(position);
-            Debug.Log($"StartCell: {startCell}, TargetCell: {targetCell}");
 
-            // 🧠 Mevcut occupied grid'i kopyala (sadece binalar için)
             bool[,] gridCopy = (bool[,])GridManager.Instance.GetOccupiedGrid().Clone();
 
-            var pathfinder = new Pathfinder(gridCopy);
-            var cellPath = pathfinder.FindPath(startCell, targetCell);
+            float originalDistance = Vector3Int.Distance(startCell, targetCell);
 
-            if (cellPath == null || cellPath.Count == 0)
+            List<Vector3Int> surroundingCells = new List<Vector3Int>();
+            int searchRadius = Mathf.Max(GridManager.Instance.GridWidth, GridManager.Instance.GridHeight);
+
+            for (int x = -searchRadius; x <= searchRadius; x++)
             {
-                Debug.LogWarning($"Path not found! Start: {startCell}, Target: {targetCell}");
-                Debug.Log($"Is start walkable: {IsWithinBounds(startCell) && !GridManager.Instance.IsCellOccupied(startCell)}");
-                Debug.Log($"Is target walkable: {IsWithinBounds(targetCell) && !GridManager.Instance.IsCellOccupied(targetCell)}");
-                return;
+                for (int y = -searchRadius; y <= searchRadius; y++)
+                {
+                    Vector3Int cell = new Vector3Int(targetCell.x + x, targetCell.y + y, 0);
+                    if (IsWithinBounds(cell) && !gridCopy[cell.x, cell.y])
+                    {
+                        surroundingCells.Add(cell);
+                    }
+                }
             }
 
-            _path = new List<Vector3>();
-            foreach (var cell in cellPath)
+            surroundingCells.Sort((a, b) => 
+                Vector3Int.Distance(a, targetCell).CompareTo(Vector3Int.Distance(b, targetCell)));
+
+            foreach (var cell in surroundingCells)
             {
-                _path.Add(GridManager.Instance.LayoutGrid.CellToWorld(cell) + new Vector3(0.5f, 0.5f, 0));
+                float distanceToTarget = Vector3Int.Distance(cell, targetCell);
+                float distanceFromStart = Vector3Int.Distance(startCell, cell);
+
+                if (distanceFromStart > originalDistance)
+                {
+                    continue;
+                }
+
+                var pathfinder = new Pathfinder(gridCopy);
+                var cellPath = pathfinder.FindPath(startCell, cell);
+
+                if (cellPath != null && cellPath.Count > 0)
+                {
+                    _path = new List<Vector3>();
+                    foreach (var pathCell in cellPath)
+                    {
+                        _path.Add(GridManager.Instance.LayoutGrid.CellToWorld(pathCell) + new Vector3(0.5f, 0.5f, 0));
+                    }
+
+                    _pathIndex = 0;
+                    return;
+                }
+            }
+        }
+
+        private Vector3Int FindNearestWalkableCell(Vector3Int targetCell, bool[,] grid)
+        {
+            int maxDistance = Mathf.Max(GridManager.Instance.GridWidth, GridManager.Instance.GridHeight);
+            
+            for (int distance = 1; distance < maxDistance; distance++)
+            {
+                for (int x = -distance; x <= distance; x++)
+                {
+                    for (int y = -distance; y <= distance; y++)
+                    {
+                        if (Mathf.Abs(x) != distance && Mathf.Abs(y) != distance)
+                            continue;
+
+                        Vector3Int testCell = new Vector3Int(targetCell.x + x, targetCell.y + y, 0);
+                        
+                        if (IsWithinBounds(testCell) && !grid[testCell.x, testCell.y])
+                        {
+                            return testCell;
+                        }
+                    }
+                }
             }
 
-            _pathIndex = 0;
-            Debug.Log($"Path found with {cellPath.Count} steps!");
+            return GridManager.Instance.LayoutGrid.WorldToCell(transform.position);
         }
 
     }
