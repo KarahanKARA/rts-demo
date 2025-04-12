@@ -22,13 +22,13 @@ namespace Data.Buildings
         public void OnSelect()
         {
             if (_renderer != null)
-                _renderer.color = SelectionColorsUtility.SelectedColor;
+                _renderer.color = SelectionColors.SelectedColor;
         }
 
         public void OnDeselect()
         {
             if (_renderer != null)
-                _renderer.color = SelectionColorsUtility.DeselectedColor;
+                _renderer.color = SelectionColors.DeselectedColor;
         }
     }
 }

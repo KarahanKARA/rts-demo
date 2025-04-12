@@ -23,54 +23,46 @@ namespace Managers
 
             ClickInputRouter.Instance.OnLeftClickDown += OnClickStart;
             ClickInputRouter.Instance.OnLeftClickUp += OnClickEnd;
-            ClickInputRouter.Instance.OnRightClickDown += OnCommandIssued;
         }
 
         private void Update()
         {
-            if (!selectionBox.gameObject.activeSelf) return;
-
-            Vector2 currentMouse = Input.mousePosition;
-            Vector2 size = currentMouse - _startPos;
-
-            selectionBox.sizeDelta = new Vector2(Mathf.Abs(size.x), Mathf.Abs(size.y));
-            selectionBox.anchoredPosition = _startPos + new Vector2(
-                size.x < 0 ? size.x : 0,
-                size.y < 0 ? size.y : 0
-            );
+            if (selectionBox.gameObject.activeSelf)
+            {
+                _endPos = Input.mousePosition;
+                UpdateSelectionBox(_startPos, _endPos);
+            }
         }
-        
-        private void OnClickStart(Vector3 worldPos)
+
+        private void UpdateSelectionBox(Vector2 start, Vector2 end)
+        {
+            Vector2 size = end - start;
+
+            selectionBox.anchoredPosition = start;
+            selectionBox.sizeDelta = new Vector2(Mathf.Abs(size.x), Mathf.Abs(size.y));
+            selectionBox.anchoredPosition += new Vector2(size.x > 0 ? 0 : size.x, size.y > 0 ? 0 : size.y);
+        }
+
+
+        private void OnClickStart(Vector3 _)
         {
             _startPos = Input.mousePosition;
             selectionBox.sizeDelta = Vector2.zero;
             selectionBox.gameObject.SetActive(true);
         }
-        
 
-        private void OnClickEnd(Vector3 worldPos)
+        private void OnClickEnd(Vector3 _)
         {
             _endPos = Input.mousePosition;
 
             if (Vector2.Distance(_startPos, _endPos) < 10f)
             {
                 selectionBox.gameObject.SetActive(false);
-                return;
+                return; 
             }
 
             SelectUnitsInBox();
             selectionBox.gameObject.SetActive(false);
-        }
-
-        private void OnCommandIssued(Vector3 worldPos)
-        {
-            foreach (var selectable in _currentlySelected)
-            {
-                if (selectable is MonoBehaviour mb && mb.TryGetComponent<IControllable>(out var ctrl))
-                {
-                    ctrl.MoveTo(worldPos);
-                }
-            }
         }
 
         private void SelectUnitsInBox()
@@ -82,22 +74,23 @@ namespace Managers
 
             foreach (var unit in Utilities.UnitRegistry.AllUnits)
             {
+                if (unit == null) continue; 
+
                 Vector3 screenPos = RectTransformUtility.WorldToScreenPoint(_cam, unit.transform.position);
                 if (screenPos.x >= min.x && screenPos.x <= max.x &&
                     screenPos.y >= min.y && screenPos.y <= max.y)
                 {
-                    Select(unit.gameObject);
+                    Select(unit);
                 }
             }
         }
-
+        
         private void Select(GameObject go)
         {
             if (go.TryGetComponent<ISelectable>(out var selectable))
             {
-                selectable.OnSelect();
                 _currentlySelected.Add(selectable);
-                SelectionManager.Instance.SelectObject(go);
+                selectable.OnSelect();
             }
         }
 
@@ -111,6 +104,11 @@ namespace Managers
             _currentlySelected.Clear();
         }
 
+        public void DeselectAllPublic()
+        {
+            DeselectAll(); 
+        }
+
         public void SelectSingle(GameObject go)
         {
             DeselectAll();
@@ -118,8 +116,12 @@ namespace Managers
             if (go.TryGetComponent<ISelectable>(out var selectable))
             {
                 _currentlySelected.Add(selectable);
-                SelectionManager.Instance.SelectObject(go); 
+                selectable.OnSelect();
             }
+
+            SelectionManager.Instance.SelectObject(go);
         }
+
+        public IReadOnlyList<ISelectable> GetSelected() => _currentlySelected;
     }
 }

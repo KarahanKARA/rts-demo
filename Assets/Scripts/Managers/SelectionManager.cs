@@ -41,18 +41,21 @@ namespace Managers
             {
                 if (hit.CompareTag("Unit"))
                 {
-                    unitSelector.SelectSingle(hit.gameObject); 
+                    unitSelector.SelectSingle(hit.gameObject);
                 }
                 else
                 {
+                    unitSelector.DeselectAllPublic(); 
                     SelectObject(hit.gameObject);
                 }
             }
             else
             {
+                unitSelector.DeselectAllPublic(); 
                 Deselect();
             }
         }
+
 
         public void SelectObject(GameObject go)
         {

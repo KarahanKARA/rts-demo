@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using UnityEngine;
+using Utilities;
 
 namespace GridSystem
 {
@@ -9,9 +10,12 @@ namespace GridSystem
         private readonly int _width;
         private readonly int _height;
 
-        private readonly Vector2Int[] _directions = new Vector2Int[]
+        private readonly Vector2Int[] _directions =
         {
-            Vector2Int.up, Vector2Int.down, Vector2Int.left, Vector2Int.right
+            Vector2Int.up,
+            Vector2Int.down,
+            Vector2Int.left,
+            Vector2Int.right
         };
 
         public Pathfinder(bool[,] walkable)
@@ -23,45 +27,65 @@ namespace GridSystem
 
         public List<Vector3Int> FindPath(Vector3Int start, Vector3Int goal)
         {
-            Queue<Vector3Int> queue = new();
-            Dictionary<Vector3Int, Vector3Int> cameFrom = new();
+            if (!IsWalkable(start) || !IsWalkable(goal))
+                return new List<Vector3Int>();
 
-            queue.Enqueue(start);
-            cameFrom[start] = start;
+            var openSet = new PriorityQueue<Vector3Int>();
+            var cameFrom = new Dictionary<Vector3Int, Vector3Int>();
+            var gScore = new Dictionary<Vector3Int, int>();
+            var fScore = new Dictionary<Vector3Int, int>();
 
-            while (queue.Count > 0)
+            openSet.Enqueue(start, 0);
+            gScore[start] = 0;
+            fScore[start] = Heuristic(start, goal);
+
+            while (openSet.Count > 0)
             {
-                var current = queue.Dequeue();
+                var current = openSet.Dequeue();
 
                 if (current == goal)
-                    break;
+                    return ReconstructPath(cameFrom, current);
 
                 foreach (var dir in _directions)
                 {
-                    Vector3Int neighbor = current + new Vector3Int(dir.x, dir.y, 0);
+                    var neighbor = current + new Vector3Int(dir.x, dir.y, 0);
+                    if (!IsWalkable(neighbor)) continue;
 
-                    if (!IsInBounds(neighbor)) continue;
-                    if (!_grid[neighbor.x, neighbor.y]) continue;
-                    if (cameFrom.ContainsKey(neighbor)) continue;
+                    int tentativeG = gScore[current] + 1;
 
-                    queue.Enqueue(neighbor);
-                    cameFrom[neighbor] = current;
+                    if (!gScore.ContainsKey(neighbor) || tentativeG < gScore[neighbor])
+                    {
+                        cameFrom[neighbor] = current;
+                        gScore[neighbor] = tentativeG;
+                        fScore[neighbor] = tentativeG + Heuristic(neighbor, goal);
+                        if (!openSet.Contains(neighbor))
+                            openSet.Enqueue(neighbor, fScore[neighbor]);
+                    }
                 }
             }
 
-            if (!cameFrom.ContainsKey(goal))
-                return new(); 
+            return new List<Vector3Int>();
+        }
 
-            List<Vector3Int> path = new();
-            Vector3Int step = goal;
-
-            while (step != start)
+        private List<Vector3Int> ReconstructPath(Dictionary<Vector3Int, Vector3Int> cameFrom, Vector3Int current)
+        {
+            List<Vector3Int> totalPath = new() { current };
+            while (cameFrom.ContainsKey(current) && cameFrom[current] != current)
             {
-                path.Insert(0, step);
-                step = cameFrom[step];
+                current = cameFrom[current];
+                totalPath.Insert(0, current);
             }
+            return totalPath;
+        }
 
-            return path;
+        private int Heuristic(Vector3Int a, Vector3Int b)
+        {
+            return Mathf.Abs(a.x - b.x) + Mathf.Abs(a.y - b.y);
+        }
+
+        private bool IsWalkable(Vector3Int cell)
+        {
+            return IsInBounds(cell) && _grid[cell.x, cell.y];
         }
 
         private bool IsInBounds(Vector3Int cell)
