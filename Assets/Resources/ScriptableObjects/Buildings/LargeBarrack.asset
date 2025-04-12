@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 00855d27656e3744db7a2b1a70693f6d, type: 3}
+  m_Name: LargeBarrack
+  m_EditorClassIdentifier: 
+  buildingName: Large Barrack
+  icon: {fileID: 21300000, guid: 5cceaf70cdf327c47ae8f34b551d1a04, type: 3}
+  prefab: {fileID: 4123888412761918000, guid: 921884c80e0061f449b04d15699c531e, type: 3}
+  size: {x: 4, y: 4}
+  health: 100
+  producibleUnits:
+  - {fileID: 11400000, guid: d0129b0c8c3283749804b18757848931, type: 2}
+  - {fileID: 11400000, guid: ed153073618ca5147947336e13d697d4, type: 2}
+  - {fileID: 11400000, guid: a6292754e01d0084bb194a1a2b9bdc8f, type: 2}

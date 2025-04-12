@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 00855d27656e3744db7a2b1a70693f6d, type: 3}
+  m_Name: MiddleBarrack
+  m_EditorClassIdentifier: 
+  buildingName: Middle Barrack
+  icon: {fileID: 21300000, guid: 9c1c6e9aeceea5b49b1b041906490e45, type: 3}
+  prefab: {fileID: 4123888412761918000, guid: c8413b36fb0edf74dbf0d825f8fdc438, type: 3}
+  size: {x: 3, y: 3}
+  health: 100
+  producibleUnits:
+  - {fileID: 11400000, guid: d0129b0c8c3283749804b18757848931, type: 2}
+  - {fileID: 11400000, guid: ed153073618ca5147947336e13d697d4, type: 2}

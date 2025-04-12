@@ -10,6 +10,7 @@ namespace UI
         [SerializeField] private Image iconImage;
         [SerializeField] private TextMeshProUGUI nameText;
         [SerializeField] private Button button;
+        public UnitData UnitData => unitData;
 
         private UnitData unitData;
 

@@ -12,4 +12,5 @@ namespace Data.Buildings
         public override bool CanProduceUnits => true;
         public override bool IsObstacle => true;
     }
+
 }

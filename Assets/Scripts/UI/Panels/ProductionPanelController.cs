@@ -37,17 +37,29 @@ namespace UI.Panels
 
         private void OnSelectedChanged(GameObject selected)
         {
+            BuildingDataHolder holder = null;
+            
             bool canProduce = selected != null &&
-                              selected.TryGetComponent(out BuildingDataHolder holder) &&
+                              selected.TryGetComponent(out holder) &&
                               holder.Data is BarracksData;
 
             panelRoot.SetActive(canProduce);
 
-            foreach (var btn in _buttons)
+            if (!canProduce) return;
+
+            if (holder != null)
             {
-                btn.gameObject.SetActive(canProduce);
+                var barracksData = holder.Data as BarracksData;
+                var allowedUnits = barracksData.producibleUnits;
+
+                foreach (var btn in _buttons)
+                {
+                    bool shouldShow = allowedUnits.Contains(btn.UnitData);
+                    btn.gameObject.SetActive(shouldShow);
+                }
             }
         }
+
 
         private void OnProduceClicked(UnitData data)
         {
