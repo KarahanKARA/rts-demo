@@ -9,7 +9,7 @@ using Utilities;
 namespace Managers
 {
     [RequireComponent(typeof(SpriteRenderer))]
-    public class UnitController : MonoBehaviour, ISelectable, IDamageable, IControllable
+    public class UnitController : MonoBehaviour, ISelectable, IControllable
     {
         [SerializeField] private float moveSpeed = 2f;
 
@@ -236,6 +236,5 @@ namespace Managers
 
         public void OnSelect() => _renderer.color = AlphaColors.SelectedColor;
         public void OnDeselect() => _renderer.color = AlphaColors.DeselectedColor;
-        public void TakeDamage(int amount) { }
     }
 }
