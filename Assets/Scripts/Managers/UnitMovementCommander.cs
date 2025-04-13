@@ -8,8 +8,8 @@ namespace Managers
     public class UnitMovementCommander : MonoBehaviour
     {
         [SerializeField] private UnitSelectionHandler unitSelector;
-        [SerializeField] private GameObject moveSprite;
-        private Coroutine moveSpriteCoroutine;
+        [SerializeField] private GameObject locationSprite;
+        private Coroutine _moveSpriteCoroutine;
         
         private void Start()
         {
@@ -20,6 +20,8 @@ namespace Managers
         {
             RaycastHit2D hit = Physics2D.Raycast(worldPos, Vector2.zero);
             var selected = unitSelector.GetSelected();
+
+            bool hasControllable = false;
 
             if (hit.collider != null && hit.collider.TryGetComponent<IAttackable>(out var target))
             {
@@ -38,30 +40,33 @@ namespace Managers
                     if (unit is MonoBehaviour mb && mb.TryGetComponent<IControllable>(out var controller))
                     {
                         controller.MoveTo(worldPos);
+                        hasControllable = true; 
                     }
                 }
 
-                ShowMoveSprite(worldPos);
+                if (hasControllable)
+                    ShowMoveSprite(worldPos);
             }
         }
+
         
         private void ShowMoveSprite(Vector3 position)
         {
-            if (moveSpriteCoroutine != null)
+            if (_moveSpriteCoroutine != null)
             {
-                StopCoroutine(moveSpriteCoroutine);
+                StopCoroutine(_moveSpriteCoroutine);
             }
 
-            moveSprite.transform.position = new Vector3(position.x, position.y, moveSprite.transform.position.z);
-            moveSprite.SetActive(true);
-            moveSpriteCoroutine = StartCoroutine(HideMoveSpriteAfterDelay());
+            locationSprite.transform.position = new Vector3(position.x, position.y, locationSprite.transform.position.z);
+            locationSprite.SetActive(true);
+            _moveSpriteCoroutine = StartCoroutine(HideMoveSpriteAfterDelay());
         }
 
         private IEnumerator HideMoveSpriteAfterDelay()
         {
             yield return new WaitForSeconds(1f);
-            moveSprite.SetActive(false);
-            moveSpriteCoroutine = null;
+            locationSprite.SetActive(false);
+            _moveSpriteCoroutine = null;
         }
 
 

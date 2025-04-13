@@ -1146,7 +1146,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   unitSelector: {fileID: 245368418}
-  moveSprite: {fileID: 1565476996}
+  locationSprite: {fileID: 1565476996}
 --- !u!1 &587191693
 GameObject:
   m_ObjectHideFlags: 0

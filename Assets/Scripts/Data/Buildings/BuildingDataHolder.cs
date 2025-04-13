@@ -1,18 +1,17 @@
 using Core.Health;
-using Core.Interfaces;
 using UnityEngine;
 
 namespace Data.Buildings
 {
-    public class BuildingDataHolder : MonoBehaviour, IDisplayInfoProvider
+    public class BuildingDataHolder : SelectableDataHolder
     {
         public BaseBuildingData Data;
-        public BuildingHealth Health;
+        public BuildingHealth buildingHealth;
 
-        public string DisplayName => Data.buildingName;
-        public Sprite Icon => Data.icon;
-        public int? AttackValue => null; 
-        HealthBase IDisplayInfoProvider.Health => Health;
+        public override string DisplayName => Data.buildingName;
+        public override Sprite Icon => Data.icon;
+        public override int? AttackValue => null;
+        public override HealthBase Health => buildingHealth;
     }
 
 }

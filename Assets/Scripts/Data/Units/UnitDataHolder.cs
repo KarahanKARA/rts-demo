@@ -1,17 +1,17 @@
 using Core.Health;
-using Core.Interfaces;
 using UnityEngine;
+using Data.Units;
 
 namespace Data.Units
 {
-    public class UnitDataHolder : MonoBehaviour, IDisplayInfoProvider
+    public class UnitDataHolder : SelectableDataHolder
     {
         public UnitData Data;
-        public UnitHealth Health;
+        public UnitHealth unitHealth;
 
-        public string DisplayName => Data.unitName;
-        public Sprite Icon => Data.icon;
-        public int? AttackValue => Data.damage;
-        HealthBase IDisplayInfoProvider.Health => Health;
+        public override string DisplayName => Data.unitName;
+        public override Sprite Icon => Data.icon;
+        public override int? AttackValue => Data.damage;
+        public override HealthBase Health => unitHealth;
     }
 }

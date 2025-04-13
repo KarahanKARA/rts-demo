@@ -148,8 +148,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6b53c7cf986c4c189d36a5756ac560aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  data: {fileID: 11400000, guid: a6292754e01d0084bb194a1a2b9bdc8f, type: 2}
-  health: {fileID: 1223958952325017940}
+  Data: {fileID: 11400000, guid: a6292754e01d0084bb194a1a2b9bdc8f, type: 2}
+  unitHealth: {fileID: 1223958952325017940}
 --- !u!114 &1223958952325017940
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -162,9 +162,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0dcd5e6ed2e541c49138224a3ff6e585, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  OnHealthChanged:
-    m_PersistentCalls:
-      m_Calls: []
   maxHealth: 10
 --- !u!114 &4472655954718468735
 MonoBehaviour:

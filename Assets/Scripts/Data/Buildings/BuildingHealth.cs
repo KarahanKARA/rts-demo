@@ -7,7 +7,6 @@ namespace Data.Buildings
 {
     public class BuildingHealth : HealthBase, IAttackable
     {
-        [SerializeField] private int maxHealth = 100;
         private BaseBuildingData _data;
 
         public override int MaxHealth { get; protected set; }

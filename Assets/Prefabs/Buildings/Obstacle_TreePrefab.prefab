@@ -125,12 +125,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0bf5bc3c60454329b1fa7d5fb0ca31c3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  OnHealthChanged:
-    m_PersistentCalls:
-      m_Calls: []
-  OnDestroyed:
-    m_PersistentCalls:
-      m_Calls: []
 --- !u!114 &-1041959272626838299
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -144,3 +138,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Data: {fileID: 11400000, guid: b530da7a186a6274db8a17ff2ba99dc7, type: 2}
+  buildingHealth: {fileID: -1260111509020004450}

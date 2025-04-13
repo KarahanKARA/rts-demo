@@ -27,13 +27,17 @@ namespace Core.Health
             RaiseHealthChanged(CurrentHealth, MaxHealth);
 
             if (CurrentHealth <= 0)
+            {
                 HandleDeath();
+                return;
+            }
 
             if (hitEffectCoroutine != null)
                 StopCoroutine(hitEffectCoroutine);
 
             hitEffectCoroutine = StartCoroutine(HitEffectRoutine());
         }
+
 
         protected virtual IEnumerator HitEffectRoutine()
         {
@@ -49,6 +53,6 @@ namespace Core.Health
         protected void RaiseHealthChanged(int current, int max) => OnHealthChanged?.Invoke(current, max);
         protected void RaiseDeath() => OnDied?.Invoke();
 
-        protected abstract void HandleDeath(); // her subclass kendine göre ölümü yönetecek
+        protected abstract void HandleDeath(); 
     }
 }
