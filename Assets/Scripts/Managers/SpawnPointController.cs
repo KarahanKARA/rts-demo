@@ -19,9 +19,11 @@ namespace Managers
         private UnitSpawnPointHolder _currentSpawnHolder;
         private Vector3Int _spawnCell;
         private GameObject _persistentCrossInstance;
+        private Camera _mainCamera;
 
         private IEnumerator Start()
         {
+            _mainCamera = Camera.main;
             flagSprite?.SetActive(false);
 
             if (SelectionManager.Instance != null)
@@ -37,7 +39,7 @@ namespace Managers
 
             if (Input.GetMouseButtonDown(1))
             {
-                Vector3 world = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+                Vector3 world = _mainCamera.ScreenToWorldPoint(Input.mousePosition);
                 world.z = 0;
 
                 Vector3Int cell = GridManager.Instance.LayoutGrid.WorldToCell(world);
