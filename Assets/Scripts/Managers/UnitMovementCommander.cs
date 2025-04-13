@@ -9,14 +9,17 @@ namespace Managers
     {
         [SerializeField] private UnitSelectionHandler unitSelector;
         [SerializeField] private GameObject locationSprite;
-        private Coroutine _moveSpriteCoroutine;
+        [SerializeField] private GameObject swordSprite;
+        
+        private Coroutine _locationSpriteCoroutine;
+        private Coroutine _swordSpriteCoroutine;
         
         private void Start()
         {
             ClickInputRouter.Instance.OnRightClickDown += HandleRightClick;
         }
         
-        private void HandleRightClick(Vector3 worldPos)
+       private void HandleRightClick(Vector3 worldPos)
         {
             RaycastHit2D hit = Physics2D.Raycast(worldPos, Vector2.zero);
             var selected = unitSelector.GetSelected();
@@ -25,6 +28,9 @@ namespace Managers
 
             if (hit.collider != null && hit.collider.TryGetComponent<IAttackable>(out var target))
             {
+                // ✅ Saldırı sprite'ı göster
+                ShowSwordSprite(hit.collider.transform.position);
+
                 foreach (var unit in selected)
                 {
                     if (unit is MonoBehaviour mb && mb.TryGetComponent<UnitController>(out var uc))
@@ -40,7 +46,7 @@ namespace Managers
                     if (unit is MonoBehaviour mb && mb.TryGetComponent<IControllable>(out var controller))
                     {
                         controller.MoveTo(worldPos);
-                        hasControllable = true; 
+                        hasControllable = true;
                     }
                 }
 
@@ -49,26 +55,31 @@ namespace Managers
             }
         }
 
-        
         private void ShowMoveSprite(Vector3 position)
         {
-            if (_moveSpriteCoroutine != null)
-            {
-                StopCoroutine(_moveSpriteCoroutine);
-            }
+            if (_locationSpriteCoroutine != null)
+                StopCoroutine(_locationSpriteCoroutine);
 
             locationSprite.transform.position = new Vector3(position.x, position.y, locationSprite.transform.position.z);
             locationSprite.SetActive(true);
-            _moveSpriteCoroutine = StartCoroutine(HideMoveSpriteAfterDelay());
+            _locationSpriteCoroutine = StartCoroutine(HideAfterDelay(locationSprite, () => _locationSpriteCoroutine = null));
         }
 
-        private IEnumerator HideMoveSpriteAfterDelay()
+        private void ShowSwordSprite(Vector3 position)
+        {
+            if (_swordSpriteCoroutine != null)
+                StopCoroutine(_swordSpriteCoroutine);
+
+            swordSprite.transform.position = new Vector3(position.x, position.y, swordSprite.transform.position.z);
+            swordSprite.SetActive(true);
+            _swordSpriteCoroutine = StartCoroutine(HideAfterDelay(swordSprite, () => _swordSpriteCoroutine = null));
+        }
+
+        private IEnumerator HideAfterDelay(GameObject sprite, System.Action onComplete)
         {
             yield return new WaitForSeconds(1f);
-            locationSprite.SetActive(false);
-            _moveSpriteCoroutine = null;
+            sprite.SetActive(false);
+            onComplete?.Invoke();
         }
-
-
     }
 }
