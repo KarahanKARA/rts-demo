@@ -28,7 +28,10 @@ namespace Managers
 
             if (hit.collider != null && hit.collider.TryGetComponent<IAttackable>(out var target))
             {
-                ShowSwordSprite(worldPos);
+                if (selected.Count > 0)
+                {
+                    ShowSwordSprite(worldPos);
+                }
 
                 foreach (var unit in selected)
                 {
