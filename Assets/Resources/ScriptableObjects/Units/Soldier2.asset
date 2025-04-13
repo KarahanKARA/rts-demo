@@ -18,4 +18,4 @@ MonoBehaviour:
   health: 10
   damage: 5
   attackSpeed: 1
-  attackRange: 1.3
+  attackRange: 1

@@ -16,4 +16,4 @@ MonoBehaviour:
   icon: {fileID: 21300000, guid: f1a235c5f7d55f84bbc9e738b1e0b661, type: 3}
   prefab: {fileID: 1359921214664993662, guid: 002ff007c182c3941b2ae8b57c03d0df, type: 3}
   size: {x: 1, y: 1}
-  health: 200
+  health: 500

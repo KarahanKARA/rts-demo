@@ -19,6 +19,12 @@ namespace Managers
         private IAttackable _pendingTarget;
         private GameObject _pendingTargetGO;
 
+        private float retryCooldown = 0.5f;
+        private float retryTimer;
+        private bool hasReachedTargetPosition;
+        private bool hadPathToTarget = false;
+        private bool shouldRetryAttack;
+
         private void Awake()
         {
             _renderer = GetComponent<SpriteRenderer>();
@@ -79,7 +85,7 @@ namespace Managers
 
                 if (!IsWalkableWorldPosition(targetPos))
                 {
-                    RecalculatePath(); 
+                    RecalculatePath();
                     return;
                 }
 
@@ -88,6 +94,17 @@ namespace Managers
 
                 if (Vector3.Distance(transform.position, targetPos) < 0.1f)
                     _pathIndex++;
+
+                hasReachedTargetPosition = false; 
+            }
+            else
+            {
+                if (_path != null) 
+                {
+                    hasReachedTargetPosition = true;
+                    _path = null;
+                    _pathIndex = 0;
+                }
             }
 
             if (_pendingTarget != null && TryGetComponent<UnitAttackController>(out var attacker))
@@ -96,6 +113,8 @@ namespace Managers
                 {
                     _pendingTarget = null;
                     _pendingTargetGO = null;
+                    hadPathToTarget = false;
+                    shouldRetryAttack = false;
                     return;
                 }
 
@@ -105,11 +124,23 @@ namespace Managers
                 if (adjustedDistance <= attacker.AttackRange)
                 {
                     attacker.Attack(_pendingTarget);
-                    _pendingTarget = null;
-                    _pendingTargetGO = null;
+                    retryTimer = retryCooldown;
+                }
+                else if (shouldRetryAttack && hadPathToTarget)
+                {
+                    retryTimer -= Time.deltaTime;
+
+                    if (retryTimer <= 0f)
+                    {
+                        Vector3 newTarget = _pendingTarget.GetClosestPoint(transform.position);
+                        MoveTo(newTarget, false);
+                        retryTimer = retryCooldown;
+                    }
                 }
             }
+
         }
+
         
         private bool IsWalkableWorldPosition(Vector3 worldPos)
         {
@@ -160,6 +191,8 @@ namespace Managers
             {
                 _pendingTarget = null;
                 _pendingTargetGO = null;
+                shouldRetryAttack = false;
+                hadPathToTarget = false;
             }
 
             var targetCell = GridManager.Instance.LayoutGrid.WorldToCell(worldPos);
@@ -198,14 +231,21 @@ namespace Managers
                         _path.Add(GridManager.Instance.LayoutGrid.CellToWorld(cellPath[i]) + new Vector3(0.5f, 0.5f));
 
                     _pathIndex = 0;
+                    hadPathToTarget = true;
+                    shouldRetryAttack = true;
                     return;
                 }
             }
+            hadPathToTarget = false;
+            shouldRetryAttack = false;
         }
+
 
 
         public void AttackTarget(GameObject target)
         {
+            if (target == gameObject) return;
+
             if (target.TryGetComponent<IAttackable>(out var attackable))
             {
                 _pendingTarget = attackable;
@@ -221,11 +261,14 @@ namespace Managers
                 }
                 else
                 {
-                    MoveTo(closest, false); 
+                    MoveTo(closest, false);
                 }
+
+                retryTimer = retryCooldown;
+                shouldRetryAttack = true;
+                hadPathToTarget = true;
             }
         }
-
 
 
         private bool IsWithinBounds(Vector3Int cell)
