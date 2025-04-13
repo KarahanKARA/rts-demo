@@ -50,21 +50,28 @@ namespace GridSystem
                 }
             }
         }
-
-        public void RegenerateGrid()
-        {
-            GenerateGrid();
-            CenterCamera();
-            DrawGridOverlay();
-        }
         
         private void CenterCamera()
         {
             float w = gameSettings.gridWidth;
             float h = gameSettings.gridHeight;
+
             mainCam.transform.position = new Vector3(w / 2f, h / 2f, -10f);
-            mainCam.orthographicSize = Mathf.Max(w, h) / 2f + 1;
+
+            float aspect = (float)Screen.width / Screen.height;
+
+            float gridAspect = w / h;
+
+            if (aspect >= gridAspect)
+            {
+                mainCam.orthographicSize = h / 2f + 1f;
+            }
+            else
+            {
+                mainCam.orthographicSize = (w / aspect) / 2f + 1f;
+            }
         }
+
 
         public void DrawGridOverlay()
         {
