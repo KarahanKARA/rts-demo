@@ -76,6 +76,13 @@ namespace Managers
             if (_path != null && _pathIndex < _path.Count)
             {
                 Vector3 targetPos = _path[_pathIndex];
+
+                if (!IsWalkableWorldPosition(targetPos))
+                {
+                    RecalculatePath(); 
+                    return;
+                }
+
                 Vector3 direction = (targetPos - transform.position).normalized;
                 transform.position += direction * (moveSpeed * Time.deltaTime);
 
@@ -100,6 +107,46 @@ namespace Managers
                     attacker.Attack(_pendingTarget);
                     _pendingTarget = null;
                     _pendingTargetGO = null;
+                }
+            }
+        }
+        
+        private bool IsWalkableWorldPosition(Vector3 worldPos)
+        {
+            var cell = GridManager.Instance.LayoutGrid.WorldToCell(worldPos);
+            var grid = GridManager.Instance.GetOccupiedGrid();
+
+            if (cell.x < 0 || cell.y < 0 || 
+                cell.x >= GridManager.Instance.GridWidth || 
+                cell.y >= GridManager.Instance.GridHeight)
+                return false;
+
+            return !grid[cell.x, cell.y];
+        }
+
+        
+        private void RecalculatePath()
+        {
+            if (_path == null || _path.Count == 0)
+                return;
+
+            Vector3 finalDestination = _path.Last();
+
+            if (IsWalkableWorldPosition(finalDestination))
+            {
+                MoveTo(finalDestination); 
+            }
+            else
+            {
+                var fallbackCell = SpawnPointUtility.FindNearestFreeCellNullable(GridManager.Instance.LayoutGrid.WorldToCell(transform.position),Vector2Int.one);
+                if (fallbackCell != null)
+                {
+                    MoveTo(GridManager.Instance.LayoutGrid.CellToWorld(fallbackCell.Value) + new Vector3(0.5f, 0.5f));
+                }
+                else
+                {
+                    _path = null;
+                    _pathIndex = 0;
                 }
             }
         }
