@@ -2,6 +2,7 @@ using UnityEngine;
 using GridSystem;
 using Data.Buildings;
 using System.Collections;
+using Core.Enums;
 using Managers;
 
 namespace Managers
@@ -20,6 +21,7 @@ namespace Managers
         private Vector3Int _spawnCell;
         private GameObject _persistentCrossInstance;
         private Camera _mainCamera;
+
 
         private IEnumerator Start()
         {
@@ -46,6 +48,7 @@ namespace Managers
 
                 if (!IsCellValid(cell))
                 {
+                    InfoPopupManager.Instance.ShowPopup(InfoPopupType.InvalidSpawnPoint);
                     ShowPopupCross(world);
                     return;
                 }
