@@ -34,10 +34,19 @@ namespace Data.Buildings
 
         public void DestroyBuilding()
         {
+            // Önce event'i tetikle
+            OnHealthChanged?.Invoke(0, maxHealth);
+            OnDied?.Invoke();
+
             if (_data != null)
             {
                 GridManager.Instance.FreeArea(transform.position, _data.size);
             }
+
+            // GameObject'i yok etmeden önce referansları temizle
+            _data = null;
+            OnHealthChanged = null;
+            OnDied = null;
 
             Destroy(gameObject);
         }

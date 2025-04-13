@@ -19,7 +19,7 @@ namespace UI.Panels
         [SerializeField] private TextMeshProUGUI healthText;
         [SerializeField] private TextMeshProUGUI attackText;
 
-        private Core.Health.HealthBase _currentHealth;
+        private HealthBase _currentHealth;
         private GameObject _selected;
 
         private void Start()
@@ -32,6 +32,12 @@ namespace UI.Panels
 
         private void OnSelectionChanged(GameObject selected)
         {
+            if (_currentHealth != null)
+            {
+                _currentHealth.OnHealthChanged.RemoveListener(UpdateHealthBar);
+                _currentHealth = null;
+            }
+
             _selected = selected;
 
             var selectedUnits = SelectionManager.Instance.UnitSelector.GetSelected();
@@ -77,9 +83,12 @@ namespace UI.Panels
             informationText.gameObject.SetActive(false);
             attackText.gameObject.SetActive(false);
 
-            // 🔁 Önceki health listener'ı sil
             if (_currentHealth != null)
+            {
                 _currentHealth.OnHealthChanged.RemoveListener(UpdateHealthBar);
+                _currentHealth.OnDied.RemoveListener(OnSelectedDied);
+                _currentHealth = null;
+            }
 
             Sprite icon = null;
             string nameStr = "";
@@ -119,12 +128,26 @@ namespace UI.Panels
             healthText.text = $"{_currentHealth.CurrentHealth} / {_currentHealth.MaxHealth}";
 
             _currentHealth.OnHealthChanged.AddListener(UpdateHealthBar);
+            _currentHealth.OnDied.AddListener(OnSelectedDied);
 
             panelRoot.SetActive(true);
         }
 
         private void UpdateHealthBar(int current, int max)
         {
+            var selectedUnits = SelectionManager.Instance.UnitSelector.GetSelected();
+            if (selectedUnits.Count > 1 || 
+                (SelectionManager.Instance.SelectedObject != null && 
+                 SelectionManager.Instance.SelectedObject != _selected))
+            {
+                if (_currentHealth != null)
+                {
+                    _currentHealth.OnHealthChanged.RemoveListener(UpdateHealthBar);
+                    _currentHealth = null;
+                }
+                return;
+            }
+
             if (_currentHealth == null || _selected == null)
                 return;
 
@@ -138,6 +161,14 @@ namespace UI.Panels
             healthText.text = $"{current} / {max}";
         }
 
+        private void OnSelectedDied()
+        {
+            if (_selected != null && SelectionManager.Instance.SelectedObject == _selected)
+            {
+                ClosePanel();
+                SelectionManager.Instance.Deselect();
+            }
+        }
 
         private void ClosePanel()
         {

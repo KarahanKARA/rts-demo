@@ -91,6 +91,13 @@ namespace Managers
             
             if (_pendingTarget != null && TryGetComponent<UnitAttackController>(out var attacker))
             {
+                if (_pendingTargetGO == null || _pendingTargetGO.Equals(null))
+                {
+                    _pendingTarget = null;
+                    _pendingTargetGO = null;
+                    return;
+                }
+
                 float distance = Vector3.Distance(transform.position, _pendingTarget.GetPosition());
                 float adjustedDistance = distance - _pendingTarget.GetCollisionRadius();
 
@@ -101,7 +108,6 @@ namespace Managers
                     _pendingTargetGO = null;
                 }
             }
-
         }
 
         public void MoveTo(Vector3 worldPos)

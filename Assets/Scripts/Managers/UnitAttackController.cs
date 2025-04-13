@@ -23,27 +23,63 @@ namespace Managers
             if (_currentTarget == target && _attackCoroutine != null)
                 return; 
 
-            StopAttack();
+            if (_attackCoroutine != null)
+            {
+                StopCoroutine(_attackCoroutine);
+                _attackCoroutine = null;
+            }
 
             _currentTarget = target;
-
             _attackCoroutine = StartCoroutine(AttackLoop());
         }
 
-
         private IEnumerator AttackLoop()
         {
+            float lastAttackTime = Time.time;
+            
             while (_currentTarget != null)
             {
-                float distance = Vector3.Distance(transform.position, _currentTarget.GetPosition());
-                float adjustedDistance = distance - _currentTarget.GetCollisionRadius();
+                if (_currentTarget == null || _currentTarget.Equals(null))
+                {
+                    StopAttack();
+                    yield break;
+                }
+
+                Vector3 targetPos;
+                float collisionRadius;
+                try
+                {
+                    targetPos = _currentTarget.GetPosition();
+                    collisionRadius = _currentTarget.GetCollisionRadius();
+                }
+                catch (System.NullReferenceException)
+                {
+                    StopAttack();
+                    yield break;
+                }
+
+                float distance = Vector3.Distance(transform.position, targetPos);
+                float adjustedDistance = distance - collisionRadius;
 
                 if (adjustedDistance <= _unitData.attackRange)
                 {
-                    _currentTarget.TakeDamage(_unitData.damage);
+                    float currentTime = Time.time;
+                    if (currentTime - lastAttackTime >= _unitData.attackSpeed)
+                    {
+                        try
+                        {
+                            _currentTarget.TakeDamage(_unitData.damage);
+                            lastAttackTime = currentTime;
+                        }
+                        catch (System.NullReferenceException)
+                        {
+                            StopAttack();
+                            yield break;
+                        }
+                    }
                 }
 
-                yield return new WaitForSeconds(_unitData.attackSpeed);
+                yield return null;
             }
         }
 
