@@ -60,11 +60,16 @@ namespace Managers
             if (cellPath == null || cellPath.Count == 0) return;
 
             _path = new List<Vector3>();
-            foreach (var cell in cellPath)
+
+            for (int i = 1; i < cellPath.Count; i++)
+            {
+                var cell = cellPath[i];
                 _path.Add(GridManager.Instance.LayoutGrid.CellToWorld(cell) + new Vector3(0.5f, 0.5f));
+            }
 
             _pathIndex = 0;
         }
+
 
         private void Update()
         {
@@ -136,8 +141,8 @@ namespace Managers
                 if (cellPath != null && cellPath.Count > 0)
                 {
                     _path = new List<Vector3>();
-                    foreach (var step in cellPath)
-                        _path.Add(GridManager.Instance.LayoutGrid.CellToWorld(step) + new Vector3(0.5f, 0.5f));
+                    for (int i = 1; i < cellPath.Count; i++)
+                        _path.Add(GridManager.Instance.LayoutGrid.CellToWorld(cellPath[i]) + new Vector3(0.5f, 0.5f));
 
                     _pathIndex = 0;
                     return;
