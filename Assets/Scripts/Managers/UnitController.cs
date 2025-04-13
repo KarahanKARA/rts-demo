@@ -157,7 +157,9 @@ namespace Managers
                 _pendingTarget = attackable;
                 _pendingTargetGO = target;
 
-                var targetCell = GridManager.Instance.LayoutGrid.WorldToCell(attackable.GetPosition());
+                Vector3 closest = attackable.GetClosestPoint(transform.position);
+
+                var targetCell = GridManager.Instance.LayoutGrid.WorldToCell(closest);
                 if (GridManager.Instance.IsCellOccupied(targetCell))
                 {
                     var nearest = SpawnPointUtility.FindNearestFreeCell(targetCell, Vector2Int.one);
@@ -165,10 +167,11 @@ namespace Managers
                 }
                 else
                 {
-                    MoveTo(attackable.GetPosition());
+                    MoveTo(closest);
                 }
             }
         }
+
 
         private bool IsWithinBounds(Vector3Int cell)
         {

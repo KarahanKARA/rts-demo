@@ -63,6 +63,11 @@ namespace Data.Units
                 SelectionManager.Instance.UnitSelector.RemoveFromSelection(selectable);
             }
         }
+        
+        public Vector3 GetClosestPoint(Vector3 fromPosition)
+        {
+            return transform.position;
+        }
 
         public float GetCollisionRadius() => 0.5f;
         public Vector3 GetPosition() => transform.position;

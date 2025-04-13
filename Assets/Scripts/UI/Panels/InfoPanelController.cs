@@ -1,3 +1,4 @@
+using System.Linq;
 using Core.Health;
 using Data.Buildings;
 using Data.Units;
@@ -167,7 +168,9 @@ namespace UI.Panels
 
             if (selectedUnits.Count > 1)
             {
-                foreach (var selectable in selectedUnits)
+                var toDestroy = selectedUnits.ToList();
+
+                foreach (var selectable in toDestroy)
                 {
                     if (selectable is MonoBehaviour mb && mb.TryGetComponent<UnitHealth>(out var unitHealth))
                         unitHealth.TakeDamage(unitHealth.MaxHealth);
@@ -196,5 +199,6 @@ namespace UI.Panels
             SelectionManager.Instance.Deselect();
             ClosePanel();
         }
+
     }
 }

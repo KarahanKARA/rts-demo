@@ -49,7 +49,7 @@ namespace Managers
                 float collisionRadius;
                 try
                 {
-                    targetPos = _currentTarget.GetPosition();
+                    targetPos = _currentTarget.GetClosestPoint(transform.position);
                     collisionRadius = _currentTarget.GetCollisionRadius();
                 }
                 catch (System.NullReferenceException)
