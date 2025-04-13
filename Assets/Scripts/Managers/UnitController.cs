@@ -17,13 +17,12 @@ namespace Managers
         private List<Vector3> _path;
         private int _pathIndex;
         private IAttackable _pendingTarget;
-        private GameObject _pendingTargetGO;
+        private GameObject _pendingTargetGo;
 
-        private float retryCooldown = 0.5f;
-        private float retryTimer;
-        private bool hasReachedTargetPosition;
-        private bool hadPathToTarget = false;
-        private bool shouldRetryAttack;
+        private const float RetryCooldown = 0.5f;
+        private float _retryTimer;
+        private bool _hadPathToTarget = false;
+        private bool _shouldRetryAttack;
 
         private void Awake()
         {
@@ -95,13 +94,11 @@ namespace Managers
                 if (Vector3.Distance(transform.position, targetPos) < 0.1f)
                     _pathIndex++;
 
-                hasReachedTargetPosition = false; 
             }
             else
             {
                 if (_path != null) 
                 {
-                    hasReachedTargetPosition = true;
                     _path = null;
                     _pathIndex = 0;
                 }
@@ -109,12 +106,12 @@ namespace Managers
 
             if (_pendingTarget != null && TryGetComponent<UnitAttackController>(out var attacker))
             {
-                if (_pendingTargetGO == null || _pendingTargetGO.Equals(null))
+                if (_pendingTargetGo == null || _pendingTargetGo.Equals(null))
                 {
                     _pendingTarget = null;
-                    _pendingTargetGO = null;
-                    hadPathToTarget = false;
-                    shouldRetryAttack = false;
+                    _pendingTargetGo = null;
+                    _hadPathToTarget = false;
+                    _shouldRetryAttack = false;
                     return;
                 }
 
@@ -124,17 +121,17 @@ namespace Managers
                 if (adjustedDistance <= attacker.AttackRange)
                 {
                     attacker.Attack(_pendingTarget);
-                    retryTimer = retryCooldown;
+                    _retryTimer = RetryCooldown;
                 }
-                else if (shouldRetryAttack && hadPathToTarget)
+                else if (_shouldRetryAttack && _hadPathToTarget)
                 {
-                    retryTimer -= Time.deltaTime;
+                    _retryTimer -= Time.deltaTime;
 
-                    if (retryTimer <= 0f)
+                    if (_retryTimer <= 0f)
                     {
                         Vector3 newTarget = _pendingTarget.GetClosestPoint(transform.position);
                         MoveTo(newTarget, false);
-                        retryTimer = retryCooldown;
+                        _retryTimer = RetryCooldown;
                     }
                 }
             }
@@ -190,9 +187,9 @@ namespace Managers
             if (clearTarget)
             {
                 _pendingTarget = null;
-                _pendingTargetGO = null;
-                shouldRetryAttack = false;
-                hadPathToTarget = false;
+                _pendingTargetGo = null;
+                _shouldRetryAttack = false;
+                _hadPathToTarget = false;
             }
 
             var targetCell = GridManager.Instance.LayoutGrid.WorldToCell(worldPos);
@@ -231,13 +228,13 @@ namespace Managers
                         _path.Add(GridManager.Instance.LayoutGrid.CellToWorld(cellPath[i]) + new Vector3(0.5f, 0.5f));
 
                     _pathIndex = 0;
-                    hadPathToTarget = true;
-                    shouldRetryAttack = true;
+                    _hadPathToTarget = true;
+                    _shouldRetryAttack = true;
                     return;
                 }
             }
-            hadPathToTarget = false;
-            shouldRetryAttack = false;
+            _hadPathToTarget = false;
+            _shouldRetryAttack = false;
         }
 
 
@@ -249,7 +246,7 @@ namespace Managers
             if (target.TryGetComponent<IAttackable>(out var attackable))
             {
                 _pendingTarget = attackable;
-                _pendingTargetGO = target;
+                _pendingTargetGo = target;
 
                 Vector3 closest = attackable.GetClosestPoint(transform.position);
                 var targetCell = GridManager.Instance.LayoutGrid.WorldToCell(closest);
@@ -264,9 +261,9 @@ namespace Managers
                     MoveTo(closest, false);
                 }
 
-                retryTimer = retryCooldown;
-                shouldRetryAttack = true;
-                hadPathToTarget = true;
+                _retryTimer = RetryCooldown;
+                _shouldRetryAttack = true;
+                _hadPathToTarget = true;
             }
         }
 

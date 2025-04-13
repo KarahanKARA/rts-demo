@@ -51,6 +51,13 @@ namespace GridSystem
             }
         }
 
+        public void RegenerateGrid()
+        {
+            GenerateGrid();
+            CenterCamera();
+            DrawGridOverlay();
+        }
+        
         private void CenterCamera()
         {
             float w = gameSettings.gridWidth;
