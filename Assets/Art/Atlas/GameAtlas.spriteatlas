@@ -1,0 +1,107 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!687078895 &4343727234628468602
+SpriteAtlas:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: GameAtlas
+  m_EditorData:
+    serializedVersion: 2
+    textureSettings:
+      serializedVersion: 2
+      anisoLevel: 1
+      compressionQuality: 50
+      maxTextureSize: 2048
+      textureCompression: 0
+      filterMode: 0
+      generateMipMaps: 0
+      readable: 0
+      crunchedCompression: 0
+      sRGB: 1
+    platformSettings:
+    - serializedVersion: 3
+      m_BuildTarget: DefaultTexturePlatform
+      m_MaxTextureSize: 2048
+      m_ResizeAlgorithm: 0
+      m_TextureFormat: -1
+      m_TextureCompression: 0
+      m_CompressionQuality: 50
+      m_CrunchedCompression: 0
+      m_AllowsAlphaSplitting: 0
+      m_Overridden: 0
+      m_AndroidETC2FallbackOverride: 0
+      m_ForceMaximumCompressionQuality_BC6H_BC7: 0
+    packingSettings:
+      serializedVersion: 2
+      padding: 8
+      blockOffset: 1
+      allowAlphaSplitting: 0
+      enableRotation: 1
+      enableTightPacking: 1
+      enableAlphaDilation: 0
+    secondaryTextureSettings: {}
+    variantMultiplier: 1
+    packables:
+    - {fileID: 2800000, guid: ef00638fabf94c74a8cc6fc6f25ac35b, type: 3}
+    - {fileID: 2800000, guid: 3284fe33ec4996e489d3fbc31a8679a8, type: 3}
+    - {fileID: 2800000, guid: b7d93ace587548e42a9355a34e46e722, type: 3}
+    - {fileID: 2800000, guid: 34f63220e73c97148b0d9ab6e7695385, type: 3}
+    - {fileID: 2800000, guid: a1f6bb3cb8ba886499b6c5ad41e51aa9, type: 3}
+    - {fileID: 2800000, guid: b97a99f344b14a849aaff153bc9cd5ae, type: 3}
+    - {fileID: 2800000, guid: cc91e0175e6ffc74181bf0b00bbd0ca9, type: 3}
+    - {fileID: 2800000, guid: 5cceaf70cdf327c47ae8f34b551d1a04, type: 3}
+    - {fileID: 2800000, guid: f1a235c5f7d55f84bbc9e738b1e0b661, type: 3}
+    - {fileID: 2800000, guid: 133e14c18fd13724281be1d5d243016b, type: 3}
+    - {fileID: 2800000, guid: 4197bac8479ae0a4aae22755bc2c7338, type: 3}
+    - {fileID: 2800000, guid: 9c1c6e9aeceea5b49b1b041906490e45, type: 3}
+    - {fileID: 2800000, guid: 8b3a30b86c0bda44ba6d101f45b2664c, type: 3}
+    - {fileID: 2800000, guid: 1866500c4a6a4c44192a4267e704a2e1, type: 3}
+    - {fileID: 2800000, guid: 7940406ebc1ce3c41a151e073ff94b54, type: 3}
+    - {fileID: 2800000, guid: 07036158b80ae214c89f23f02629a347, type: 3}
+    bindAsDefault: 1
+    isAtlasV2: 0
+    cachedData: {fileID: 0}
+  m_MasterAtlas: {fileID: 0}
+  m_PackedSprites:
+  - {fileID: 21300000, guid: 34f63220e73c97148b0d9ab6e7695385, type: 3}
+  - {fileID: 21300000, guid: 5cceaf70cdf327c47ae8f34b551d1a04, type: 3}
+  - {fileID: 21300000, guid: 133e14c18fd13724281be1d5d243016b, type: 3}
+  - {fileID: 21300000, guid: 3284fe33ec4996e489d3fbc31a8679a8, type: 3}
+  - {fileID: 21300000, guid: b97a99f344b14a849aaff153bc9cd5ae, type: 3}
+  - {fileID: 21300000, guid: f1a235c5f7d55f84bbc9e738b1e0b661, type: 3}
+  - {fileID: 21300000, guid: cc91e0175e6ffc74181bf0b00bbd0ca9, type: 3}
+  - {fileID: -1957061414, guid: 07036158b80ae214c89f23f02629a347, type: 3}
+  - {fileID: 21300000, guid: 8b3a30b86c0bda44ba6d101f45b2664c, type: 3}
+  - {fileID: 21300000, guid: 4197bac8479ae0a4aae22755bc2c7338, type: 3}
+  - {fileID: 21300000, guid: 9c1c6e9aeceea5b49b1b041906490e45, type: 3}
+  - {fileID: 21300000, guid: 1866500c4a6a4c44192a4267e704a2e1, type: 3}
+  - {fileID: 21300000, guid: a1f6bb3cb8ba886499b6c5ad41e51aa9, type: 3}
+  - {fileID: 21300000, guid: 7940406ebc1ce3c41a151e073ff94b54, type: 3}
+  - {fileID: 21300000, guid: b7d93ace587548e42a9355a34e46e722, type: 3}
+  - {fileID: -842501616, guid: ef00638fabf94c74a8cc6fc6f25ac35b, type: 3}
+  - {fileID: 1410834074, guid: ef00638fabf94c74a8cc6fc6f25ac35b, type: 3}
+  - {fileID: -1052035306, guid: ef00638fabf94c74a8cc6fc6f25ac35b, type: 3}
+  m_PackedSpriteNamesToIndex:
+  - tree
+  - LargeBarrackIcon
+  - trashbinIcon
+  - CrossIcon
+  - house2
+  - wall
+  - house3
+  - tile_0
+  - PowerPlantIcon
+  - locationMarkIcon
+  - MiddleBarrackIcon
+  - SmallBarrackIcon
+  - Grid_Outline_32px
+  - SwordIcon
+  - FlagIcon
+  - bugs_2
+  - bugs_1
+  - bugs_0
+  m_RenderDataMap: {}
+  m_Tag: GameAtlas
+  m_IsVariant: 0
