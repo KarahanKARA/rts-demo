@@ -1,11 +1,13 @@
 using System.Linq;
 using Core.Health;
+using Core.Interfaces;
 using Data.Buildings;
 using Data.Units;
 using Managers;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using Utilities;
 
 namespace UI.Panels
 {
@@ -78,6 +80,12 @@ namespace UI.Panels
 
         private void ShowSingleSelectionInfo(GameObject selected)
         {
+            if (!selected.TryGetComponent<IDisplayInfoProvider>(out var infoProvider))
+            {
+                ClosePanel();
+                return;
+            }
+
             scrollView.SetActive(true);
             iconImage.enabled = true;
             informationText.gameObject.SetActive(false);
@@ -85,34 +93,22 @@ namespace UI.Panels
 
             DetachHealthEvents();
 
-            Sprite icon = null;
-            string nameStr = "";
-            _currentHealth = null;
-
-            if (selected.TryGetComponent(out BuildingDataHolder buildingData))
-            {
-                icon = buildingData.Data.icon;
-                nameStr = buildingData.Data.buildingName;
-                _currentHealth = buildingData.Health;
-            }
-            else if (selected.TryGetComponent(out UnitDataHolder unitData))
-            {
-                icon = unitData.Data.icon;
-                nameStr = unitData.Data.unitName;
-                _currentHealth = unitData.Health;
-
-                attackText.text = $"ATK: {unitData.Data.damage}";
-                attackText.gameObject.SetActive(true);
-            }
-
+            _currentHealth = infoProvider.Health;
             if (_currentHealth == null)
             {
                 ClosePanel();
                 return;
             }
 
-            iconImage.sprite = icon;
-            nameText.text = nameStr;
+            iconImage.sprite = infoProvider.Icon;
+            nameText.text = infoProvider.DisplayName;
+
+            if (infoProvider.AttackValue.HasValue)
+            {
+                attackText.text = $"ATK: {infoProvider.AttackValue.Value}";
+                attackText.gameObject.SetActive(true);
+            }
+
             healthSlider.maxValue = _currentHealth.MaxHealth;
             healthSlider.value = _currentHealth.CurrentHealth;
             healthText.text = $"{_currentHealth.CurrentHealth} / {_currentHealth.MaxHealth}";
@@ -122,6 +118,7 @@ namespace UI.Panels
 
             panelRoot.SetActive(true);
         }
+
 
         private void UpdateHealthBar(int current, int max)
         {
@@ -172,8 +169,8 @@ namespace UI.Panels
 
                 foreach (var selectable in toDestroy)
                 {
-                    if (selectable is MonoBehaviour mb && mb.TryGetComponent<UnitHealth>(out var unitHealth))
-                        unitHealth.TakeDamage(unitHealth.MaxHealth);
+                    if (selectable is MonoBehaviour mb)
+                        mb.gameObject.Kill();
                 }
 
                 SelectionManager.Instance.UnitSelector.DeselectAllPublic();
@@ -189,16 +186,10 @@ namespace UI.Panels
                 return;
             }
 
-            if (obj.TryGetComponent<UnitHealth>(out var unit))
-                unit.TakeDamage(unit.MaxHealth);
-            else if (obj.TryGetComponent<BuildingHealth>(out var building))
-                building.DestroySelf();
-            else
-                Destroy(obj);
+            obj.Kill();
 
             SelectionManager.Instance.Deselect();
             ClosePanel();
         }
-
     }
 }

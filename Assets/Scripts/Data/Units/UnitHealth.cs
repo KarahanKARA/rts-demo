@@ -2,73 +2,58 @@ using System;
 using System.Linq;
 using Core.Health;
 using Core.Interfaces;
-using UnityEngine;
 using Managers;
+using UnityEngine;
 
 namespace Data.Units
 {
     public class UnitHealth : HealthBase, IAttackable
     {
         [SerializeField] private int maxHealth = 10;
-        private int currentHealth;
-
-        public override int MaxHealth => maxHealth;
-        public override int CurrentHealth => currentHealth;
+        public override int MaxHealth { get; protected set; }
+        public override int CurrentHealth { get; protected set; }
 
         public event Action<GameObject> OnUnitDied;
 
-        private void Awake()
+        protected override void Awake()
         {
-            currentHealth = maxHealth;
+            base.Awake();
+            MaxHealth = maxHealth;
+            CurrentHealth = MaxHealth;
         }
 
         public void Initialize(int health)
         {
-            maxHealth = health;
-            currentHealth = maxHealth;
-            RaiseHealthChanged(currentHealth, maxHealth);
+            MaxHealth = health;
+            CurrentHealth = MaxHealth;
+            RaiseHealthChanged(CurrentHealth, MaxHealth);
         }
 
-        public override void TakeDamage(int amount)
-        {
-            currentHealth -= amount;
-            currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
-            RaiseHealthChanged(currentHealth, maxHealth);
-
-            if (currentHealth <= 0)
-                Die();
-        }
-
-        private void Die()
+        protected override void HandleDeath()
         {
             RaiseDeath();
             OnUnitDied?.Invoke(gameObject);
 
-            if (SelectionManager.Instance != null &&
-                SelectionManager.Instance.UnitSelector.GetSelected().Contains(GetComponent<ISelectable>()))
+            var selectable = GetComponent<ISelectable>();
+            var selector = SelectionManager.Instance?.UnitSelector;
+
+            if (selector != null && selector.GetSelected().Contains(selectable))
             {
-                SelectionManager.Instance.UnitSelector.DeselectAllPublic();
+                selector.DeselectAllPublic();
                 SelectionManager.Instance.Deselect();
             }
 
             string key = gameObject.name.Replace("(Clone)", "").Trim();
-            if (ObjectPoolManager.Instance != null)
-                ObjectPoolManager.Instance.Release(key, gameObject);
+
+            if (Managers.ObjectPoolManager.Instance != null)
+                Managers.ObjectPoolManager.Instance.Release(key, gameObject);
             else
                 Destroy(gameObject);
-            
-            if (SelectionManager.Instance != null)
-            {
-                var selectable = GetComponent<ISelectable>();
-                SelectionManager.Instance.UnitSelector.RemoveFromSelection(selectable);
-            }
-        }
-        
-        public Vector3 GetClosestPoint(Vector3 fromPosition)
-        {
-            return transform.position;
+
+            selector?.RemoveFromSelection(selectable);
         }
 
+        public Vector3 GetClosestPoint(Vector3 fromPosition) => transform.position;
         public float GetCollisionRadius() => 0.5f;
         public Vector3 GetPosition() => transform.position;
     }

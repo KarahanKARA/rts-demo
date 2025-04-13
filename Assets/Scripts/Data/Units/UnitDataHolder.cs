@@ -1,13 +1,17 @@
+using Core.Health;
+using Core.Interfaces;
 using UnityEngine;
 
 namespace Data.Units
 {
-    public class UnitDataHolder : MonoBehaviour
+    public class UnitDataHolder : MonoBehaviour, IDisplayInfoProvider
     {
-        [SerializeField] private UnitData data;
-        [SerializeField] private UnitHealth health;
+        public UnitData Data;
+        public UnitHealth Health;
 
-        public UnitData Data => data;
-        public UnitHealth Health => health;
+        public string DisplayName => Data.unitName;
+        public Sprite Icon => Data.icon;
+        public int? AttackValue => Data.damage;
+        HealthBase IDisplayInfoProvider.Health => Health;
     }
 }

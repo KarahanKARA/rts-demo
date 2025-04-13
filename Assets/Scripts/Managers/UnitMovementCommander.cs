@@ -1,3 +1,4 @@
+using System.Collections;
 using Core.Input;
 using Core.Interfaces;
 using UnityEngine;
@@ -7,7 +8,9 @@ namespace Managers
     public class UnitMovementCommander : MonoBehaviour
     {
         [SerializeField] private UnitSelectionHandler unitSelector;
-
+        [SerializeField] private GameObject moveSprite;
+        private Coroutine moveSpriteCoroutine;
+        
         private void Start()
         {
             ClickInputRouter.Instance.OnRightClickDown += HandleRightClick;
@@ -37,8 +40,30 @@ namespace Managers
                         controller.MoveTo(worldPos);
                     }
                 }
+
+                ShowMoveSprite(worldPos);
             }
         }
+        
+        private void ShowMoveSprite(Vector3 position)
+        {
+            if (moveSpriteCoroutine != null)
+            {
+                StopCoroutine(moveSpriteCoroutine);
+            }
+
+            moveSprite.transform.position = new Vector3(position.x, position.y, moveSprite.transform.position.z);
+            moveSprite.SetActive(true);
+            moveSpriteCoroutine = StartCoroutine(HideMoveSpriteAfterDelay());
+        }
+
+        private IEnumerator HideMoveSpriteAfterDelay()
+        {
+            yield return new WaitForSeconds(1f);
+            moveSprite.SetActive(false);
+            moveSpriteCoroutine = null;
+        }
+
 
     }
 }

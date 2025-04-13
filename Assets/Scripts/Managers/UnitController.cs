@@ -234,8 +234,8 @@ namespace Managers
                    cell.y >= 0 && cell.y < GridManager.Instance.GridHeight;
         }
 
-        public void OnSelect() => _renderer.color = SelectionColors.SelectedColor;
-        public void OnDeselect() => _renderer.color = SelectionColors.DeselectedColor;
+        public void OnSelect() => _renderer.color = AlphaColors.SelectedColor;
+        public void OnDeselect() => _renderer.color = AlphaColors.DeselectedColor;
         public void TakeDamage(int amount) { }
     }
 }
