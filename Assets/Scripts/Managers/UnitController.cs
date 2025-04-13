@@ -18,7 +18,7 @@ namespace Managers
         private int _pathIndex;
         private IAttackable _pendingTarget;
         private GameObject _pendingTargetGO;
-        
+
         private void Awake()
         {
             _renderer = GetComponent<SpriteRenderer>();
@@ -39,24 +39,17 @@ namespace Managers
         public void Initialize(UnitData data, Vector3 target)
         {
             if (TryGetComponent(out UnitHealth health))
-            {
                 health.Initialize(data.health);
-            }
 
             if (TryGetComponent(out UnitAttackController attackController))
-            {
                 attackController.Initialize(data);
-            }
 
             Vector3Int spawnCell = GridManager.Instance.LayoutGrid.WorldToCell(target);
             if (!GridManager.Instance.IsAreaFree(spawnCell, Vector2Int.one))
-            {
                 spawnCell = SpawnPointUtility.FindNearestFreeCell(spawnCell, Vector2Int.one);
-            }
 
             TryMoveToCell(spawnCell);
         }
-
 
         private void TryMoveToCell(Vector3Int targetCell)
         {
@@ -68,27 +61,23 @@ namespace Managers
 
             _path = new List<Vector3>();
             foreach (var cell in cellPath)
-            {
                 _path.Add(GridManager.Instance.LayoutGrid.CellToWorld(cell) + new Vector3(0.5f, 0.5f));
-            }
 
             _pathIndex = 0;
         }
 
         private void Update()
         {
-            if (_path == null || _pathIndex >= _path.Count) return;
-
-            Vector3 targetPos = _path[_pathIndex];
-            Vector3 direction = (targetPos - transform.position).normalized;
-
-            transform.position += direction * (moveSpeed * Time.deltaTime);
-
-            if (Vector3.Distance(transform.position, targetPos) < 0.1f)
+            if (_path != null && _pathIndex < _path.Count)
             {
-                _pathIndex++;
+                Vector3 targetPos = _path[_pathIndex];
+                Vector3 direction = (targetPos - transform.position).normalized;
+                transform.position += direction * (moveSpeed * Time.deltaTime);
+
+                if (Vector3.Distance(transform.position, targetPos) < 0.1f)
+                    _pathIndex++;
             }
-            
+
             if (_pendingTarget != null && TryGetComponent<UnitAttackController>(out var attacker))
             {
                 if (_pendingTargetGO == null || _pendingTargetGO.Equals(null))
@@ -113,10 +102,8 @@ namespace Managers
         public void MoveTo(Vector3 worldPos)
         {
             if (TryGetComponent<UnitAttackController>(out var attackController))
-            {
                 attackController.StopAttack();
-            }
-            
+
             var targetCell = GridManager.Instance.LayoutGrid.WorldToCell(worldPos);
             var startCell = GridManager.Instance.LayoutGrid.WorldToCell(transform.position);
 
@@ -124,7 +111,6 @@ namespace Managers
 
             var gridCopy = (bool[,])GridManager.Instance.GetOccupiedGrid().Clone();
             float originalDistance = Vector3Int.Distance(startCell, targetCell);
-
             var nearby = new List<Vector3Int>();
             int searchRadius = Mathf.Max(GridManager.Instance.GridWidth, GridManager.Instance.GridHeight);
 
@@ -134,14 +120,11 @@ namespace Managers
                 {
                     var candidate = new Vector3Int(targetCell.x + x, targetCell.y + y, 0);
                     if (IsWithinBounds(candidate) && !gridCopy[candidate.x, candidate.y])
-                    {
                         nearby.Add(candidate);
-                    }
                 }
             }
 
-            nearby.Sort((a, b) =>
-                Vector3Int.Distance(a, targetCell).CompareTo(Vector3Int.Distance(b, targetCell)));
+            nearby.Sort((a, b) => Vector3Int.Distance(a, targetCell).CompareTo(Vector3Int.Distance(b, targetCell)));
 
             foreach (var cell in nearby)
             {
@@ -154,16 +137,14 @@ namespace Managers
                 {
                     _path = new List<Vector3>();
                     foreach (var step in cellPath)
-                    {
                         _path.Add(GridManager.Instance.LayoutGrid.CellToWorld(step) + new Vector3(0.5f, 0.5f));
-                    }
 
                     _pathIndex = 0;
                     return;
                 }
             }
         }
-        
+
         public void AttackTarget(GameObject target)
         {
             if (target.TryGetComponent<IAttackable>(out var attackable))
@@ -184,8 +165,6 @@ namespace Managers
             }
         }
 
-
-
         private bool IsWithinBounds(Vector3Int cell)
         {
             return cell.x >= 0 && cell.x < GridManager.Instance.GridWidth &&
@@ -194,10 +173,6 @@ namespace Managers
 
         public void OnSelect() => _renderer.color = SelectionColors.SelectedColor;
         public void OnDeselect() => _renderer.color = SelectionColors.DeselectedColor;
-
-        public void TakeDamage(int amount)
-        {
-            Debug.Log($"Unit {gameObject.name} took {amount} damage!");
-        }
+        public void TakeDamage(int amount) { }
     }
 }

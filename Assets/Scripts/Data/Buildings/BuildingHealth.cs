@@ -9,52 +9,41 @@ namespace Data.Buildings
     {
         [SerializeField] private int maxHealth = 100;
         private int currentHealth;
+        private BaseBuildingData _data;
 
         public override int MaxHealth => maxHealth;
         public override int CurrentHealth => currentHealth;
-
-        private BaseBuildingData _data;
 
         public void Initialize(BaseBuildingData data)
         {
             _data = data;
             maxHealth = data.health;
             currentHealth = maxHealth;
+            RaiseHealthChanged(currentHealth, maxHealth);
         }
 
         public override void TakeDamage(int amount)
         {
             currentHealth -= amount;
             currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
-            OnHealthChanged?.Invoke(currentHealth, maxHealth);
+            RaiseHealthChanged(currentHealth, maxHealth);
 
             if (currentHealth <= 0)
-                DestroyBuilding();
+                DestroySelf();
         }
 
-        public void DestroyBuilding()
+        public void DestroySelf()
         {
-            // Önce event'i tetikle
-            OnHealthChanged?.Invoke(0, maxHealth);
-            OnDied?.Invoke();
+            RaiseHealthChanged(0, maxHealth);
+            RaiseDeath();
 
             if (_data != null)
-            {
                 GridManager.Instance.FreeArea(transform.position, _data.size);
-            }
-
-            // GameObject'i yok etmeden önce referansları temizle
-            _data = null;
-            OnHealthChanged = null;
-            OnDied = null;
 
             Destroy(gameObject);
         }
-        public float GetCollisionRadius()
-        {
-            return Mathf.Max(_data.size.x, _data.size.y) / 2f;
-        }
 
+        public float GetCollisionRadius() => Mathf.Max(_data.size.x, _data.size.y) / 2f;
         public Vector3 GetPosition() => transform.position;
     }
 }

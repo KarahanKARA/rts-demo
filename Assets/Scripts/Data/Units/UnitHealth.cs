@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using Core.Health;
 using Core.Interfaces;
 using UnityEngine;
@@ -14,24 +15,25 @@ namespace Data.Units
         public override int MaxHealth => maxHealth;
         public override int CurrentHealth => currentHealth;
 
-        public event Action<GameObject> OnDied;
+        public event Action<GameObject> OnUnitDied;
 
         private void Awake()
         {
             currentHealth = maxHealth;
         }
+
         public void Initialize(int health)
         {
             maxHealth = health;
             currentHealth = maxHealth;
-            OnHealthChanged.Invoke(currentHealth, maxHealth);
+            RaiseHealthChanged(currentHealth, maxHealth);
         }
 
         public override void TakeDamage(int amount)
         {
             currentHealth -= amount;
             currentHealth = Mathf.Clamp(currentHealth, 0, maxHealth);
-            OnHealthChanged.Invoke(currentHealth, maxHealth);
+            RaiseHealthChanged(currentHealth, maxHealth);
 
             if (currentHealth <= 0)
                 Die();
@@ -39,20 +41,30 @@ namespace Data.Units
 
         private void Die()
         {
-            OnDied?.Invoke(gameObject);
+            RaiseDeath();
+            OnUnitDied?.Invoke(gameObject);
+
+            if (SelectionManager.Instance != null &&
+                SelectionManager.Instance.UnitSelector.GetSelected().Contains(GetComponent<ISelectable>()))
+            {
+                SelectionManager.Instance.UnitSelector.DeselectAllPublic();
+                SelectionManager.Instance.Deselect();
+            }
 
             string key = gameObject.name.Replace("(Clone)", "").Trim();
             if (ObjectPoolManager.Instance != null)
                 ObjectPoolManager.Instance.Release(key, gameObject);
             else
                 Destroy(gameObject);
+            
+            if (SelectionManager.Instance != null)
+            {
+                var selectable = GetComponent<ISelectable>();
+                SelectionManager.Instance.UnitSelector.RemoveFromSelection(selectable);
+            }
         }
-        
-        public float GetCollisionRadius()
-        {
-            return 0.5f;
-        }
-        
+
+        public float GetCollisionRadius() => 0.5f;
         public Vector3 GetPosition() => transform.position;
     }
 }

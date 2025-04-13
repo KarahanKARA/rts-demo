@@ -76,7 +76,7 @@ namespace Managers
 
             foreach (var unit in Utilities.UnitRegistry.AllUnits)
             {
-                if (unit == null) continue;
+                if (unit == null || !unit.activeInHierarchy) continue;
 
                 Vector3 screenPos = RectTransformUtility.WorldToScreenPoint(_cam, unit.transform.position);
                 if (screenPos.x >= min.x && screenPos.x <= max.x &&
@@ -105,6 +105,15 @@ namespace Managers
             }
         }
 
+        public void RemoveFromSelection(ISelectable unit)
+        {
+            if (_currentlySelected.Contains(unit))
+            {
+                _currentlySelected.Remove(unit);
+            }
+        }
+
+        
         private void DeselectAll()
         {
             _currentlySelected.RemoveAll(s => s == null);

@@ -26,40 +26,40 @@ namespace UI.Panels
         {
             SelectionManager.Instance.OnSelectedChanged += OnSelectionChanged;
             SelectionManager.Instance.UnitSelector.OnMultipleSelection += HandleMultipleSelection;
-
             panelRoot.SetActive(false);
         }
 
         private void OnSelectionChanged(GameObject selected)
         {
-            if (_currentHealth != null)
-            {
-                _currentHealth.OnHealthChanged.RemoveListener(UpdateHealthBar);
-                _currentHealth = null;
-            }
-
+            DetachHealthEvents();
             _selected = selected;
 
             var selectedUnits = SelectionManager.Instance.UnitSelector.GetSelected();
-
             if (selectedUnits.Count > 1)
             {
-                ShowMultipleSelectionInfo(selectedUnits.Count);
+                if (selectedUnits.Count == 1 && selectedUnits[0] is MonoBehaviour mb)
+                    ShowSingleSelectionInfo(mb.gameObject);
+                else
+                    ShowMultipleSelectionInfo(selectedUnits.Count);
+
                 return;
             }
 
-            if (selected == null)
+            if (_selected == null)
             {
                 ClosePanel();
                 return;
             }
 
-            ShowSingleSelectionInfo(selected);
+            ShowSingleSelectionInfo(_selected);
         }
 
         private void HandleMultipleSelection(int count)
         {
-            ShowMultipleSelectionInfo(count);
+            if (count == 1 && SelectionManager.Instance.UnitSelector.GetSelected()[0] is MonoBehaviour mb)
+                ShowSingleSelectionInfo(mb.gameObject);
+            else
+                ShowMultipleSelectionInfo(count);
         }
 
         private void ShowMultipleSelectionInfo(int unitCount)
@@ -71,7 +71,6 @@ namespace UI.Panels
             attackText.gameObject.SetActive(false);
             healthText.text = "";
             healthSlider.value = 0;
-
             informationText.text = $"{unitCount} soldier(s) selected";
             informationText.gameObject.SetActive(true);
         }
@@ -83,12 +82,7 @@ namespace UI.Panels
             informationText.gameObject.SetActive(false);
             attackText.gameObject.SetActive(false);
 
-            if (_currentHealth != null)
-            {
-                _currentHealth.OnHealthChanged.RemoveListener(UpdateHealthBar);
-                _currentHealth.OnDied.RemoveListener(OnSelectedDied);
-                _currentHealth = null;
-            }
+            DetachHealthEvents();
 
             Sprite icon = null;
             string nameStr = "";
@@ -109,11 +103,6 @@ namespace UI.Panels
                 attackText.text = $"ATK: {unitData.Data.damage}";
                 attackText.gameObject.SetActive(true);
             }
-            else
-            {
-                ClosePanel();
-                return;
-            }
 
             if (_currentHealth == null)
             {
@@ -127,47 +116,39 @@ namespace UI.Panels
             healthSlider.value = _currentHealth.CurrentHealth;
             healthText.text = $"{_currentHealth.CurrentHealth} / {_currentHealth.MaxHealth}";
 
-            _currentHealth.OnHealthChanged.AddListener(UpdateHealthBar);
-            _currentHealth.OnDied.AddListener(OnSelectedDied);
+            _currentHealth.OnHealthChanged += UpdateHealthBar;
+            _currentHealth.OnDied += HandleDeath;
 
             panelRoot.SetActive(true);
         }
 
         private void UpdateHealthBar(int current, int max)
         {
-            var selectedUnits = SelectionManager.Instance.UnitSelector.GetSelected();
-            if (selectedUnits.Count > 1 || 
-                (SelectionManager.Instance.SelectedObject != null && 
-                 SelectionManager.Instance.SelectedObject != _selected))
-            {
-                if (_currentHealth != null)
-                {
-                    _currentHealth.OnHealthChanged.RemoveListener(UpdateHealthBar);
-                    _currentHealth = null;
-                }
-                return;
-            }
-
-            if (_currentHealth == null || _selected == null)
-                return;
-
-            if (!_selected.TryGetComponent(out HealthBase currentSelectedHealth))
-                return;
-
-            if (currentSelectedHealth != _currentHealth)
-                return;
+            if (_currentHealth == null || _selected == null) return;
+            if (SelectionManager.Instance.SelectedObject != _selected) return;
 
             healthSlider.value = current;
             healthText.text = $"{current} / {max}";
         }
 
-        private void OnSelectedDied()
+        private void HandleDeath()
         {
-            if (_selected != null && SelectionManager.Instance.SelectedObject == _selected)
+            if (SelectionManager.Instance.SelectedObject == _selected)
             {
-                ClosePanel();
                 SelectionManager.Instance.Deselect();
+                ClosePanel();
             }
+        }
+
+        private void DetachHealthEvents()
+        {
+            if (_currentHealth != null)
+            {
+                _currentHealth.OnHealthChanged -= UpdateHealthBar;
+                _currentHealth.OnDied -= HandleDeath;
+            }
+
+            _currentHealth = null;
         }
 
         private void ClosePanel()
@@ -176,7 +157,7 @@ namespace UI.Panels
             scrollView.SetActive(true);
             iconImage.enabled = true;
             informationText.text = "";
-            _currentHealth = null;
+            DetachHealthEvents();
             _selected = null;
         }
 
@@ -188,11 +169,8 @@ namespace UI.Panels
             {
                 foreach (var selectable in selectedUnits)
                 {
-                    if (selectable is MonoBehaviour mb &&
-                        mb.TryGetComponent<UnitHealth>(out var unitHealth))
-                    {
+                    if (selectable is MonoBehaviour mb && mb.TryGetComponent<UnitHealth>(out var unitHealth))
                         unitHealth.TakeDamage(unitHealth.MaxHealth);
-                    }
                 }
 
                 SelectionManager.Instance.UnitSelector.DeselectAllPublic();
@@ -202,7 +180,6 @@ namespace UI.Panels
             }
 
             var obj = SelectionManager.Instance.SelectedObject;
-
             if (obj == null)
             {
                 ClosePanel();
@@ -210,17 +187,11 @@ namespace UI.Panels
             }
 
             if (obj.TryGetComponent<UnitHealth>(out var unit))
-            {
                 unit.TakeDamage(unit.MaxHealth);
-            }
-            else if (obj.TryGetComponent<BuildingHealth>(out var buildingHealth))
-            {
-                buildingHealth.DestroyBuilding();
-            }
+            else if (obj.TryGetComponent<BuildingHealth>(out var building))
+                building.DestroySelf();
             else
-            {
                 Destroy(obj);
-            }
 
             SelectionManager.Instance.Deselect();
             ClosePanel();
