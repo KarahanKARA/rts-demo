@@ -28,8 +28,7 @@ namespace Managers
 
             if (hit.collider != null && hit.collider.TryGetComponent<IAttackable>(out var target))
             {
-                // ✅ Saldırı sprite'ı göster
-                ShowSwordSprite(hit.collider.transform.position);
+                ShowSwordSprite(worldPos);
 
                 foreach (var unit in selected)
                 {
