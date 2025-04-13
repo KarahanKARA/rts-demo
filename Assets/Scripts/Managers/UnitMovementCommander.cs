@@ -12,18 +12,33 @@ namespace Managers
         {
             ClickInputRouter.Instance.OnRightClickDown += HandleRightClick;
         }
-
+        
         private void HandleRightClick(Vector3 worldPos)
         {
+            RaycastHit2D hit = Physics2D.Raycast(worldPos, Vector2.zero);
             var selected = unitSelector.GetSelected();
 
-            foreach (var selectable in selected)
+            if (hit.collider != null && hit.collider.TryGetComponent<IAttackable>(out var target))
             {
-                if (selectable is MonoBehaviour mb && mb.TryGetComponent<IControllable>(out var controller))
+                foreach (var unit in selected)
                 {
-                    controller.MoveTo(worldPos);
+                    if (unit is MonoBehaviour mb && mb.TryGetComponent<UnitController>(out var uc))
+                    {
+                        uc.AttackTarget(hit.collider.gameObject);
+                    }
+                }
+            }
+            else
+            {
+                foreach (var unit in selected)
+                {
+                    if (unit is MonoBehaviour mb && mb.TryGetComponent<IControllable>(out var controller))
+                    {
+                        controller.MoveTo(worldPos);
+                    }
                 }
             }
         }
+
     }
 }

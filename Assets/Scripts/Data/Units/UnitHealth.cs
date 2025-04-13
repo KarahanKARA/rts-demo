@@ -1,11 +1,12 @@
 using System;
 using Core.Health;
+using Core.Interfaces;
 using UnityEngine;
 using Managers;
 
 namespace Data.Units
 {
-    public class UnitHealth : HealthBase
+    public class UnitHealth : HealthBase, IAttackable
     {
         [SerializeField] private int maxHealth = 10;
         private int currentHealth;
@@ -19,7 +20,6 @@ namespace Data.Units
         {
             currentHealth = maxHealth;
         }
-
         public void Initialize(int health)
         {
             maxHealth = health;
@@ -47,5 +47,12 @@ namespace Data.Units
             else
                 Destroy(gameObject);
         }
+        
+        public float GetCollisionRadius()
+        {
+            return 0.5f;
+        }
+        
+        public Vector3 GetPosition() => transform.position;
     }
 }

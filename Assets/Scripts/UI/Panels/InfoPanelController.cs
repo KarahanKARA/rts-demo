@@ -1,3 +1,4 @@
+using Core.Health;
 using Data.Buildings;
 using Data.Units;
 using Managers;
@@ -62,6 +63,8 @@ namespace UI.Panels
             iconImage.enabled = false;
             nameText.text = "";
             attackText.gameObject.SetActive(false);
+            healthText.text = "";
+            healthSlider.value = 0;
 
             informationText.text = $"{unitCount} soldier(s) selected";
             informationText.gameObject.SetActive(true);
@@ -73,6 +76,10 @@ namespace UI.Panels
             iconImage.enabled = true;
             informationText.gameObject.SetActive(false);
             attackText.gameObject.SetActive(false);
+
+            // 🔁 Önceki health listener'ı sil
+            if (_currentHealth != null)
+                _currentHealth.OnHealthChanged.RemoveListener(UpdateHealthBar);
 
             Sprite icon = null;
             string nameStr = "";
@@ -111,7 +118,6 @@ namespace UI.Panels
             healthSlider.value = _currentHealth.CurrentHealth;
             healthText.text = $"{_currentHealth.CurrentHealth} / {_currentHealth.MaxHealth}";
 
-            _currentHealth.OnHealthChanged.RemoveListener(UpdateHealthBar);
             _currentHealth.OnHealthChanged.AddListener(UpdateHealthBar);
 
             panelRoot.SetActive(true);
@@ -119,9 +125,19 @@ namespace UI.Panels
 
         private void UpdateHealthBar(int current, int max)
         {
+            if (_currentHealth == null || _selected == null)
+                return;
+
+            if (!_selected.TryGetComponent(out HealthBase currentSelectedHealth))
+                return;
+
+            if (currentSelectedHealth != _currentHealth)
+                return;
+
             healthSlider.value = current;
             healthText.text = $"{current} / {max}";
         }
+
 
         private void ClosePanel()
         {

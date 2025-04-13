@@ -1,10 +1,11 @@
 using Core.Health;
+using Core.Interfaces;
 using GridSystem;
 using UnityEngine;
 
 namespace Data.Buildings
 {
-    public class BuildingHealth : HealthBase
+    public class BuildingHealth : HealthBase, IAttackable
     {
         [SerializeField] private int maxHealth = 100;
         private int currentHealth;
@@ -40,5 +41,11 @@ namespace Data.Buildings
 
             Destroy(gameObject);
         }
+        public float GetCollisionRadius()
+        {
+            return Mathf.Max(_data.size.x, _data.size.y) / 2f;
+        }
+
+        public Vector3 GetPosition() => transform.position;
     }
 }
