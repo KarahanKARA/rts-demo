@@ -104,10 +104,16 @@ namespace Managers
             }
         }
 
-        public void MoveTo(Vector3 worldPos)
+        public void MoveTo(Vector3 worldPos, bool clearTarget = true)
         {
             if (TryGetComponent<UnitAttackController>(out var attackController))
                 attackController.StopAttack();
+
+            if (clearTarget)
+            {
+                _pendingTarget = null;
+                _pendingTargetGO = null;
+            }
 
             var targetCell = GridManager.Instance.LayoutGrid.WorldToCell(worldPos);
             var startCell = GridManager.Instance.LayoutGrid.WorldToCell(transform.position);
@@ -150,6 +156,7 @@ namespace Managers
             }
         }
 
+
         public void AttackTarget(GameObject target)
         {
             if (target.TryGetComponent<IAttackable>(out var attackable))
@@ -158,19 +165,20 @@ namespace Managers
                 _pendingTargetGO = target;
 
                 Vector3 closest = attackable.GetClosestPoint(transform.position);
-
                 var targetCell = GridManager.Instance.LayoutGrid.WorldToCell(closest);
+
                 if (GridManager.Instance.IsCellOccupied(targetCell))
                 {
                     var nearest = SpawnPointUtility.FindNearestFreeCell(targetCell, Vector2Int.one);
-                    MoveTo(GridManager.Instance.LayoutGrid.CellToWorld(nearest));
+                    MoveTo(GridManager.Instance.LayoutGrid.CellToWorld(nearest), false);
                 }
                 else
                 {
-                    MoveTo(closest);
+                    MoveTo(closest, false); 
                 }
             }
         }
+
 
 
         private bool IsWithinBounds(Vector3Int cell)
