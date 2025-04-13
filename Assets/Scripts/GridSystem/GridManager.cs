@@ -53,22 +53,25 @@ namespace GridSystem
         
         private void CenterCamera()
         {
-            float w = gameSettings.gridWidth;
-            float h = gameSettings.gridHeight;
+            float gridWidth = gameSettings.gridWidth;
+            float gridHeight = gameSettings.gridHeight;
 
-            mainCam.transform.position = new Vector3(w / 2f, h / 2f, -10f);
+            mainCam.transform.position = new Vector3(gridWidth / 2f, gridHeight / 2f, -10f);
 
-            float aspect = (float)Screen.width / Screen.height;
+            float visibleScreenWidth = Screen.width * 0.55f;
+            float screenHeight = Screen.height;
 
-            float gridAspect = w / h;
+            float visibleAspect = visibleScreenWidth / screenHeight;
 
-            if (aspect >= gridAspect)
+            float gridAspect = gridWidth / gridHeight;
+
+            if (visibleAspect >= gridAspect)
             {
-                mainCam.orthographicSize = h / 2f + 1f;
+                mainCam.orthographicSize = gridHeight / 2f + 1f;
             }
             else
             {
-                mainCam.orthographicSize = (w / aspect) / 2f + 1f;
+                mainCam.orthographicSize = (gridWidth / visibleAspect) / 2f + 1f;
             }
         }
 
