@@ -21,6 +21,9 @@ namespace GridSystem
         public int GridWidth => gameSettings.gridWidth;
         public int GridHeight => gameSettings.gridHeight;
 
+        private int lastScreenWidth;
+        private int lastScreenHeight;
+        
         private void Awake()
         {
             if (Instance != null && Instance != this) Destroy(gameObject);
@@ -33,7 +36,21 @@ namespace GridSystem
             GenerateGrid();
             CenterCamera();
             DrawGridOverlay();
+
+            lastScreenWidth = Screen.width;
+            lastScreenHeight = Screen.height;
         }
+        private void Update()
+        {
+            if (Screen.width != lastScreenWidth || Screen.height != lastScreenHeight)
+            {
+                CenterCamera();
+
+                lastScreenWidth = Screen.width;
+                lastScreenHeight = Screen.height;
+            }
+        }
+
 
         private void GenerateGrid()
         {
