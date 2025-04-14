@@ -8,71 +8,77 @@ namespace Managers
 {
     public class UnitSelectionHandler : MonoBehaviour
     {
-        [SerializeField] private RectTransform selectionBox;
+        [Header("Unit Settings")]
         [SerializeField] private LayerMask unitLayer;
+
+        [Header("World Selection Visual")]
+        [SerializeField] private LineRenderer lineRenderer;
+
+        private Vector3 dragStartWorld;
+        private Vector3 dragEndWorld;
 
         public event Action<int> OnMultipleSelection;
 
-        private Vector2 _startPos;
-        private Vector2 _endPos;
         private Camera _cam;
-
         private readonly List<ISelectable> _currentlySelected = new();
 
         private void Start()
         {
             _cam = Camera.main;
-            selectionBox.gameObject.SetActive(false);
 
             ClickInputRouter.Instance.OnLeftClickDown += OnClickStart;
             ClickInputRouter.Instance.OnLeftClickUp += OnClickEnd;
+
+            lineRenderer.positionCount = 5;
+            lineRenderer.loop = true;
+            lineRenderer.enabled = false;
         }
 
         private void Update()
         {
-            if (selectionBox.gameObject.activeSelf)
-            {
-                _endPos = Input.mousePosition;
-                UpdateSelectionBox(_startPos, _endPos);
-            }
+            if (!lineRenderer.enabled) return;
+
+            dragEndWorld = _cam.ScreenToWorldPoint(Input.mousePosition);
+            dragEndWorld.z = 0;
+
+            Vector3[] corners = new Vector3[5];
+            corners[0] = new Vector3(dragStartWorld.x, dragStartWorld.y, 0);
+            corners[1] = new Vector3(dragStartWorld.x, dragEndWorld.y, 0);
+            corners[2] = new Vector3(dragEndWorld.x, dragEndWorld.y, 0);
+            corners[3] = new Vector3(dragEndWorld.x, dragStartWorld.y, 0);
+            corners[4] = corners[0];
+
+            lineRenderer.SetPositions(corners);
         }
 
-        private void UpdateSelectionBox(Vector2 start, Vector2 end)
+        private void OnClickStart(Vector3 worldPos)
         {
-            Vector2 size = end - start;
-
-            selectionBox.anchoredPosition = start;
-            selectionBox.sizeDelta = new Vector2(Mathf.Abs(size.x), Mathf.Abs(size.y));
-            selectionBox.anchoredPosition += new Vector2(size.x > 0 ? 0 : size.x, size.y > 0 ? 0 : size.y);
+            dragStartWorld = worldPos;
+            dragStartWorld.z = 0;
+            lineRenderer.enabled = true;
         }
 
-        private void OnClickStart(Vector3 _)
+        private void OnClickEnd(Vector3 worldPos)
         {
-            _startPos = Input.mousePosition;
-            selectionBox.sizeDelta = Vector2.zero;
-            selectionBox.gameObject.SetActive(true);
-        }
+            dragEndWorld = worldPos;
+            dragEndWorld.z = 0;
+            lineRenderer.enabled = false;
 
-        private void OnClickEnd(Vector3 _)
-        {
-            _endPos = Input.mousePosition;
-
-            if (Vector2.Distance(_startPos, _endPos) < 10f)
-            {
-                selectionBox.gameObject.SetActive(false);
+            if (Vector2.Distance(_cam.WorldToScreenPoint(dragStartWorld), _cam.WorldToScreenPoint(dragEndWorld)) < 10f)
                 return;
-            }
 
             SelectUnitsInBox();
-            selectionBox.gameObject.SetActive(false);
         }
 
         private void SelectUnitsInBox()
         {
             DeselectAll();
 
-            Vector2 min = Vector2.Min(_startPos, _endPos);
-            Vector2 max = Vector2.Max(_startPos, _endPos);
+            Vector3 screenStart = _cam.WorldToScreenPoint(dragStartWorld);
+            Vector3 screenEnd = _cam.WorldToScreenPoint(dragEndWorld);
+
+            Vector2 min = Vector2.Min(screenStart, screenEnd);
+            Vector2 max = Vector2.Max(screenStart, screenEnd);
 
             foreach (var unit in Utilities.UnitRegistry.AllUnits)
             {
@@ -86,7 +92,11 @@ namespace Managers
                 }
             }
 
-            if (_currentlySelected.Count > 1)
+            if (_currentlySelected.Count == 1 && _currentlySelected[0] is MonoBehaviour mb)
+            {
+                SelectionManager.Instance.SelectObject(mb.gameObject);
+            }
+            else if (_currentlySelected.Count > 1)
             {
                 OnMultipleSelection?.Invoke(_currentlySelected.Count);
             }
@@ -113,7 +123,6 @@ namespace Managers
             }
         }
 
-        
         private void DeselectAll()
         {
             _currentlySelected.RemoveAll(s => s == null);
