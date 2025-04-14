@@ -29,7 +29,6 @@ namespace Managers
                 Destroy(gameObject);
                 return;
             }
-
             Instance = this;
         }
 
