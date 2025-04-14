@@ -85,6 +85,7 @@ namespace Managers
         {
             IsDragging = true;
             HasDragged = false;
+            SelectionManager.Instance?.Deselect();
         }
 
         private void EndDrag()
