@@ -8,6 +8,9 @@ namespace Managers
 {
     public class UnitSelectionHandler : MonoBehaviour
     {
+        public bool IsDragging { get; private set; }
+        public bool HasDragged { get; private set; }
+
         [Header("Unit Settings")]
         [SerializeField] private LayerMask unitLayer;
 
@@ -16,6 +19,8 @@ namespace Managers
 
         private Vector3 dragStartWorld;
         private Vector3 dragEndWorld;
+
+        private const float DragThreshold = 0.2f;
 
         public event Action<int> OnMultipleSelection;
 
@@ -29,45 +34,62 @@ namespace Managers
             ClickInputRouter.Instance.OnLeftClickDown += OnClickStart;
             ClickInputRouter.Instance.OnLeftClickUp += OnClickEnd;
 
-            lineRenderer.positionCount = 5;
-            lineRenderer.loop = true;
-            lineRenderer.enabled = false;
         }
+
 
         private void Update()
         {
-            if (!lineRenderer.enabled) return;
+            if (!IsDragging) return;
 
             dragEndWorld = _cam.ScreenToWorldPoint(Input.mousePosition);
             dragEndWorld.z = 0;
 
-            Vector3[] corners = new Vector3[5];
-            corners[0] = new Vector3(dragStartWorld.x, dragStartWorld.y, 0);
-            corners[1] = new Vector3(dragStartWorld.x, dragEndWorld.y, 0);
-            corners[2] = new Vector3(dragEndWorld.x, dragEndWorld.y, 0);
-            corners[3] = new Vector3(dragEndWorld.x, dragStartWorld.y, 0);
-            corners[4] = corners[0];
+            float dragDistance = Vector2.Distance(dragStartWorld, dragEndWorld);
+            HasDragged = dragDistance > DragThreshold;
 
-            lineRenderer.SetPositions(corners);
+            if (HasDragged)
+            {
+                Vector3[] corners = new Vector3[5];
+                corners[0] = new Vector3(dragStartWorld.x, dragStartWorld.y, 0);
+                corners[1] = new Vector3(dragStartWorld.x, dragEndWorld.y, 0);
+                corners[2] = new Vector3(dragEndWorld.x, dragEndWorld.y, 0);
+                corners[3] = new Vector3(dragEndWorld.x, dragStartWorld.y, 0);
+                corners[4] = corners[0];
+
+                lineRenderer.SetPositions(corners);
+                lineRenderer.enabled = true;
+            }
         }
 
         private void OnClickStart(Vector3 worldPos)
         {
+            BeginDrag();
             dragStartWorld = worldPos;
             dragStartWorld.z = 0;
-            lineRenderer.enabled = true;
         }
 
         private void OnClickEnd(Vector3 worldPos)
         {
+            EndDrag();
             dragEndWorld = worldPos;
             dragEndWorld.z = 0;
+
             lineRenderer.enabled = false;
 
-            if (Vector2.Distance(_cam.WorldToScreenPoint(dragStartWorld), _cam.WorldToScreenPoint(dragEndWorld)) < 10f)
-                return;
+            if (!HasDragged) return;
 
             SelectUnitsInBox();
+        }
+
+        private void BeginDrag()
+        {
+            IsDragging = true;
+            HasDragged = false;
+        }
+
+        private void EndDrag()
+        {
+            IsDragging = false;
         }
 
         private void SelectUnitsInBox()

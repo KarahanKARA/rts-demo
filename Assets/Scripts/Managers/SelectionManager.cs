@@ -30,32 +30,34 @@ namespace Managers
 
         private void Start()
         {
-            ClickInputRouter.Instance.OnLeftClickDown += HandleClick;
+            ClickInputRouter.Instance.OnLeftClickUp += HandleClickUp;
         }
 
-        private void HandleClick(Vector3 worldPos)
+        private void HandleClickUp(Vector3 worldPos)
         {
-            var hit = Physics2D.OverlapPoint(worldPos);
-
-            if (hit != null && hit.TryGetComponent<ISelectable>(out var selectable))
+            if (!UnitSelector.HasDragged)
             {
-                if (hit.CompareTag("Unit"))
+                var hit = Physics2D.OverlapPoint(worldPos);
+
+                if (hit != null && hit.TryGetComponent<ISelectable>(out var selectable))
                 {
-                    unitSelector.SelectSingle(hit.gameObject);
+                    if (hit.CompareTag("Unit"))
+                    {
+                        unitSelector.SelectSingle(hit.gameObject);
+                    }
+                    else
+                    {
+                        unitSelector.DeselectAllPublic();
+                        SelectObject(hit.gameObject);
+                    }
                 }
                 else
                 {
-                    unitSelector.DeselectAllPublic(); 
-                    SelectObject(hit.gameObject);
+                    unitSelector.DeselectAllPublic();
+                    Deselect();
                 }
             }
-            else
-            {
-                unitSelector.DeselectAllPublic(); 
-                Deselect();
-            }
         }
-
 
         public void SelectObject(GameObject go)
         {
@@ -66,7 +68,7 @@ namespace Managers
 
             _selectedObject = go;
 
-            if (_selectedObject != null &&  _selectedObject.TryGetComponent<ISelectable>(out var newSelectable))
+            if (_selectedObject != null && _selectedObject.TryGetComponent<ISelectable>(out var newSelectable))
                 newSelectable.OnSelect();
 
             OnSelectedChanged?.Invoke(_selectedObject);
@@ -74,7 +76,7 @@ namespace Managers
 
         public void Deselect()
         {
-            if ( _selectedObject != null && _selectedObject.TryGetComponent<ISelectable>(out var selectable))
+            if (_selectedObject != null && _selectedObject.TryGetComponent<ISelectable>(out var selectable))
                 selectable.OnDeselect();
 
             _selectedObject = null;
