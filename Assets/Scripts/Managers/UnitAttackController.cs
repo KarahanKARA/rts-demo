@@ -5,6 +5,10 @@ using UnityEngine;
 
 namespace Managers
 {
+    /// <summary>
+    /// Handles attack logic between units and buildings.
+    /// Deals damage over time and tracks attack targets.
+    /// </summary>
     public class UnitAttackController : MonoBehaviour
     {
         private UnitData _unitData;

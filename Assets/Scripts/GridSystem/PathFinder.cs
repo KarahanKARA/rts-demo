@@ -4,6 +4,11 @@ using Utilities;
 
 namespace GridSystem
 {
+    /// <summary>
+    /// Simple pathfinding system using A* algorithm over grid data.
+    /// Calculates walkable paths from start to goal.
+    /// </summary>
+
     public class Pathfinder
     {
         private readonly bool[,] _grid;

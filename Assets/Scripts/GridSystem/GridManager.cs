@@ -4,6 +4,11 @@ using UnityEngine.Tilemaps;
 
 namespace GridSystem
 {
+    /// <summary>
+    /// Responsible for managing grid generation, tile drawing,
+    /// and cell occupation tracking for building and movement.
+    /// </summary>
+
     public class GridManager : MonoBehaviour
     {
         public static GridManager Instance { get; private set; }
@@ -13,22 +18,22 @@ namespace GridSystem
         [SerializeField] private Tilemap overlayTilemap;
         [SerializeField] private GameSettings gameSettings;
 
-        private bool[,] occupied;
-        private bool[,] buildingGrid;
-        private Camera mainCam;
+        private bool[,] _occupied;
+        private bool[,] _buildingGrid;
+        private Camera _mainCam;
 
         public Grid LayoutGrid => layoutGrid;
         public int GridWidth => gameSettings.gridWidth;
         public int GridHeight => gameSettings.gridHeight;
 
-        private int lastScreenWidth;
-        private int lastScreenHeight;
+        private int _lastScreenWidth;
+        private int _lastScreenHeight;
         
         private void Awake()
         {
             if (Instance != null && Instance != this) Destroy(gameObject);
             Instance = this;
-            mainCam = Camera.main;
+            _mainCam = Camera.main;
         }
 
         private void Start()
@@ -37,17 +42,17 @@ namespace GridSystem
             CenterCamera();
             DrawGridOverlay();
 
-            lastScreenWidth = Screen.width;
-            lastScreenHeight = Screen.height;
+            _lastScreenWidth = Screen.width;
+            _lastScreenHeight = Screen.height;
         }
         private void Update()
         {
-            if (Screen.width != lastScreenWidth || Screen.height != lastScreenHeight)
+            if (Screen.width != _lastScreenWidth || Screen.height != _lastScreenHeight)
             {
                 CenterCamera();
 
-                lastScreenWidth = Screen.width;
-                lastScreenHeight = Screen.height;
+                _lastScreenWidth = Screen.width;
+                _lastScreenHeight = Screen.height;
             }
         }
 
@@ -56,8 +61,8 @@ namespace GridSystem
         {
             tilemap.ClearAllTiles();
             overlayTilemap.ClearAllTiles();
-            occupied = new bool[gameSettings.gridWidth, gameSettings.gridHeight];
-            buildingGrid = new bool[gameSettings.gridWidth, gameSettings.gridHeight];
+            _occupied = new bool[gameSettings.gridWidth, gameSettings.gridHeight];
+            _buildingGrid = new bool[gameSettings.gridWidth, gameSettings.gridHeight];
 
             for (int x = 0; x < gameSettings.gridWidth; x++)
             {
@@ -73,7 +78,7 @@ namespace GridSystem
             float gridWidth = gameSettings.gridWidth;
             float gridHeight = gameSettings.gridHeight;
 
-            mainCam.transform.position = new Vector3(gridWidth / 2f, gridHeight / 2f, -10f);
+            _mainCam.transform.position = new Vector3(gridWidth / 2f, gridHeight / 2f, -10f);
 
             float visibleScreenWidth = Screen.width * 0.55f;
             float screenHeight = Screen.height;
@@ -84,11 +89,11 @@ namespace GridSystem
 
             if (visibleAspect >= gridAspect)
             {
-                mainCam.orthographicSize = gridHeight / 2f + 1f;
+                _mainCam.orthographicSize = gridHeight / 2f + 1f;
             }
             else
             {
-                mainCam.orthographicSize = (gridWidth / visibleAspect) / 2f + 1f;
+                _mainCam.orthographicSize = (gridWidth / visibleAspect) / 2f + 1f;
             }
         }
 
@@ -131,7 +136,7 @@ namespace GridSystem
                     int gx = bottomLeft.x + x;
                     int gy = bottomLeft.y + y;
 
-                    if (!IsCellInBounds(gx, gy) || buildingGrid[gx, gy])
+                    if (!IsCellInBounds(gx, gy) || _buildingGrid[gx, gy])
                         return false;
                 }
             }
@@ -152,8 +157,8 @@ namespace GridSystem
 
                     if (IsCellInBounds(gx, gy))
                     {
-                        buildingGrid[gx, gy] = true;
-                        occupied[gx, gy] = true;
+                        _buildingGrid[gx, gy] = true;
+                        _occupied[gx, gy] = true;
                     }
                 }
             }
@@ -173,8 +178,8 @@ namespace GridSystem
 
                     if (IsCellInBounds(gx, gy))
                     {
-                        buildingGrid[gx, gy] = false;
-                        occupied[gx, gy] = false;
+                        _buildingGrid[gx, gy] = false;
+                        _occupied[gx, gy] = false;
                     }
                 }
             }
@@ -188,9 +193,9 @@ namespace GridSystem
         public bool IsCellOccupied(Vector3Int cell)
         {
             if (!IsCellInBounds(cell.x, cell.y)) return true;
-            return buildingGrid[cell.x, cell.y];
+            return _buildingGrid[cell.x, cell.y];
         }
 
-        public bool[,] GetOccupiedGrid() => buildingGrid;
+        public bool[,] GetOccupiedGrid() => _buildingGrid;
     }
 }

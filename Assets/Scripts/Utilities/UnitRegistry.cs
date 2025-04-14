@@ -3,6 +3,9 @@ using UnityEngine;
 
 namespace Utilities
 {
+    /// <summary>
+    /// Tracks all active units in the scene for global access (used for selection).
+    /// </summary>
     public static class UnitRegistry
     {
         private static readonly List<GameObject> _allUnits = new();

@@ -7,6 +7,9 @@ using Managers;
 
 namespace Managers
 {
+    /// <summary>
+    /// Responsible for managing unit spawn points from buildings.
+    /// </summary>
     public class SpawnPointController : MonoBehaviour
     {
         [SerializeField] private GameObject flagSprite;

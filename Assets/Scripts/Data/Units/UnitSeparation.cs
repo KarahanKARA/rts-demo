@@ -10,14 +10,14 @@ namespace Data.Units
         [SerializeField] private float pushStrength = 1.5f;
         [SerializeField] private LayerMask unitLayer;
 
-        private int frameSkip = 0;
-        private const int separationEveryNFrames = 3;
+        private int _frameSkip = 0;
+        private const int SeparationEveryNFrames = 3;
         
         private void FixedUpdate()
         {
-            frameSkip++;
-            if (frameSkip % separationEveryNFrames != 0) return;
-            frameSkip = 0;
+            _frameSkip++;
+            if (_frameSkip % SeparationEveryNFrames != 0) return;
+            _frameSkip = 0;
             
             Collider2D[] hits = Physics2D.OverlapCircleAll(transform.position, separationRadius, unitLayer);
 

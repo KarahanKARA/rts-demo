@@ -6,6 +6,10 @@ using UnityEngine;
 
 namespace Managers
 {
+    /// <summary>
+    /// Handles drag-based multiple unit selection using LineRenderer.
+    /// Tracks dragging state and manages selection logic.
+    /// </summary>
     public class UnitSelectionHandler : MonoBehaviour
     {
         public bool IsDragging { get; private set; }

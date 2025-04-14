@@ -12,27 +12,25 @@ namespace UI
         [SerializeField] private TextMeshProUGUI buildNameTmp;
 
         public RectTransform rectTransform;
-        private BaseBuildingData data;
-        private BuildingPlacer placer;
-        private DragManager dragManager;
+        private BaseBuildingData _data;
+        private BuildingPlacer _placer;
 
         public void Init(BuildingPlacer placerRef, DragManager dragRef)
         {
-            placer = placerRef;
-            dragManager = dragRef;
+            _placer = placerRef;
         }
 
         public void Setup(BaseBuildingData newData)
         {
-            data = newData;
-            iconImage.sprite = data.icon;
-            buildNameTmp.text = data.buildingName;
+            _data = newData;
+            iconImage.sprite = _data.icon;
+            buildNameTmp.text = _data.buildingName;
         }
 
         public void OnClick()
         {
-            if (data != null)
-                placer.StartPlacing(data);
+            if (_data != null)
+                _placer.StartPlacing(_data);
         }
     }
 }

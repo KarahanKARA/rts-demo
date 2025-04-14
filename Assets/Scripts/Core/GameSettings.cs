@@ -3,6 +3,9 @@ using UnityEngine.Tilemaps;
 
 namespace Core
 {
+    /// <summary>
+    /// ScriptableObject that stores general game settings like grid size and tilemap references.
+    /// </summary>
     [CreateAssetMenu(menuName = "Config/Game Settings")]
     public class GameSettings : ScriptableObject
     {

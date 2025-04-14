@@ -5,6 +5,11 @@ using UnityEngine;
 
 namespace Managers
 {
+    /// <summary>
+    /// Issues movement or attack commands to selected units based on right-click.
+    /// Displays UI indicators for feedback (sword, flag).
+    /// </summary>
+
     public class UnitMovementCommander : MonoBehaviour
     {
         [SerializeField] private UnitSelectionHandler unitSelector;

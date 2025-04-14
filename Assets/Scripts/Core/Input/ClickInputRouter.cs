@@ -3,6 +3,11 @@ using UnityEngine;
 
 namespace Core.Input
 {
+    /// <summary>
+    /// Global input manager for left and right click events.
+    /// Provides world position from mouse inputs.
+    /// </summary>
+
     public class ClickInputRouter : MonoBehaviour
     {
         public static ClickInputRouter Instance { get; private set; }

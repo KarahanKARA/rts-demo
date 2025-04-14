@@ -5,6 +5,11 @@ using UnityEngine;
 
 namespace Managers
 {
+    /// <summary>
+    /// Handles high-level selection logic between buildings and units.
+    /// Integrates with UnitSelectionHandler for multiple selection support.
+    /// </summary>
+
     public class SelectionManager : MonoBehaviour
     {
         public static SelectionManager Instance { get; private set; }
