@@ -1,4 +1,4 @@
-[youtube.com/watch?v=KDW9y0abvKY&embeds_referring_euri=https%3A%2F%2Fkorathosgames.com%2F&source_ve_path=MjM4NTE](https://www.youtube.com/watch?v=KDW9y0abvKY)
+Link : https://www.youtube.com/watch?v=KDW9y0abvKY&t=2s
 
 > A small-scale RTS (Real-Time Strategy) base-building and unit-control demo.
 
